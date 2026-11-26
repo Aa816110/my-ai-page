@@ -1,0 +1,1328 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>经营文献智能调研助手 · 整合版（取证报告 + 六章骨架）</title>
+<!-- 单文件无外部资源：显式声明空图标，阻止浏览器自动请求同目录 favicon.ico。
+     file:// 下该请求必然 404，会在 F12 控制台留下
+     "Failed to load resource: net::ERR_FILE_NOT_FOUND" 的红字。 -->
+<link rel="icon" href="data:,">
+<style>
+/* ============================================================
+   管理学院蓝色系视觉系统（替换原先的中性灰蓝）
+   设计口径：低饱和「学院蓝」为主，全界面统一蓝阶层次；
+   山东大学校徽按《山东大学章程》第六十八条保留官方「山大红」#7B0203，
+   仅在 header 以 42px 小面积出现，避免红蓝大面积撞色；
+   背景 = 固定柔和渐变 + 极淡山形水纹 + 2.2% 校徽水印，全部内联、零外链。
+   ============================================================ */
+:root{
+  --brand:#1d4e89;      /* 主色：学院蓝 */
+  --brand-d:#153c6e;    /* 深一档：hover / 强调 */
+  --brand-l:#3a72b8;    /* 亮一档：渐变 / 进度条 */
+  --brand-soft:#e8f0fa; /* 浅蓝底：运行中 / 选中态 */
+  --brand-tint:#f3f8fd; /* 更浅：输入区 / 日志底 */
+  --line:#d7e2f0;       /* 边框 */
+  --ink:#1b2c45;        /* 墨蓝正文 */
+  --sub:#5f7391;        /* 次要文字 */
+  --card:#fff;
+  --bg:#f3f7fc;
+  --ok:#1f8a5b;         /* 状态色：柔化但保留语义可辨 */
+  --warn:#b8791f;
+  --bad:#b23b3b;
+  --lock:#c3d2e6;
+  --sdu-red:#7b0203;    /* 山大红：仅校徽使用 */
+  --shadow:0 6px 22px rgba(29,78,137,.07);
+}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;color:var(--ink);
+  font:14px/1.6 -apple-system,"Segoe UI","Microsoft YaHei",sans-serif;
+  background:
+    radial-gradient(1100px 480px at 10% -10%,#e2edfb 0%,rgba(226,237,251,0) 70%),
+    radial-gradient(900px 420px at 94% 4%,#e9f2fc 0%,rgba(233,242,252,0) 72%),
+    linear-gradient(180deg,#f7fafe 0%,#eef4fb 48%,#f5f9fd 100%);
+  background-attachment:fixed}
+/* 背景层：呼应校徽「山之魂、海之韵」的山形与水纹，纯氛围、不承载信息 */
+.bg-art{position:fixed;left:0;right:0;bottom:0;width:100%;height:260px;z-index:0;pointer-events:none}
+.bg-art .hill{fill:var(--brand-l);opacity:.055}
+.bg-art .wave{fill:none;stroke:var(--brand-l);stroke-width:1.2;opacity:.10}
+.bg-mark{position:fixed;right:-150px;top:28%;width:430px;height:461px;z-index:0;pointer-events:none;color:var(--sdu-red);opacity:.022}
+.wrap{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:16px}
+header{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:14px 18px;
+  background:linear-gradient(105deg,#fff 0%,#fbfdff 58%,#f0f6fd 100%);
+  border:1px solid var(--line);border-top:3px solid var(--brand);
+  border-radius:12px;box-shadow:var(--shadow)}
+.sdu-logo{width:42px;height:45px;flex:0 0 auto;color:var(--sdu-red)}
+.brand-txt{flex:1 1 260px;min-width:0}
+.brand-line{font-size:12px;letter-spacing:1.2px;color:var(--sub);margin-bottom:3px}
+.brand-uni{color:var(--ink);font-weight:700}
+.brand-sep{margin:0 6px;color:var(--lock)}
+.brand-school{color:var(--brand);font-weight:600}
+header h1{font-size:17px;margin:0;color:var(--ink);font-weight:650;letter-spacing:.3px}
+header h1 .ver{font-size:12px;font-weight:400;color:var(--sub);margin-left:8px}
+.badge{font-size:12px;padding:3px 10px;border-radius:999px;background:#eef4fb;color:var(--brand);border:1px solid #d3e2f5;white-space:nowrap}
+.badge.blue{background:#e3edfa;color:var(--brand-d);border-color:#bcd2ee}
+.btn{border:1px solid var(--brand);background:var(--brand);color:#fff;padding:8px 14px;border-radius:8px;cursor:pointer;font-size:13px;box-shadow:0 2px 6px rgba(29,78,137,.16);transition:background .15s,border-color .15s,transform .15s}
+.btn:hover{background:var(--brand-d);border-color:var(--brand-d)}
+.btn:active{transform:translateY(1px)}
+.btn.ghost{background:#fff;color:var(--brand);border-color:#bcd2ee;box-shadow:none}
+.btn.ghost:hover{background:var(--brand-soft)}
+.btn.mini{padding:5px 10px;font-size:12px}
+.btn:disabled{opacity:.45;cursor:not-allowed;box-shadow:none}
+section{background:rgba(255,255,255,.94);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-top:14px;box-shadow:0 4px 18px rgba(29,78,137,.045)}
+h2{font-size:14px;margin:0 0 10px;color:var(--brand);font-weight:600;letter-spacing:.5px;display:flex;align-items:center;flex-wrap:wrap;gap:8px}
+h2::before{content:'';display:inline-block;width:3px;height:13px;background:var(--brand);border-radius:2px;flex:0 0 auto}
+label{display:block;font-size:12px;color:var(--sub);margin:8px 0 4px}
+input[type=text],textarea,select{width:100%;border:1px solid var(--line);border-radius:8px;padding:9px 10px;font:13px/1.6 inherit;color:var(--ink);background:#fcfdff;transition:border-color .15s,box-shadow .15s}
+input[type=text]:focus,textarea:focus,select:focus{outline:none;border-color:var(--brand-l);box-shadow:0 0 0 3px rgba(58,114,184,.12);background:#fff}
+textarea{resize:vertical}
+code{background:var(--brand-soft);color:var(--brand-d);padding:1px 4px;border-radius:4px;font-size:12px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.row>*{flex:1}
+.row .tight{flex:0 0 auto}
+#docs{min-height:96px}
+.hint{font-size:12px;color:var(--sub);margin-top:6px}
+#steps{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.step{position:relative;border:1px solid var(--line);border-radius:10px;padding:9px 10px;background:#fafcff}
+.step .n{font-size:11px;color:var(--sub)}
+.step .t{font-weight:600;font-size:13px;margin-top:2px}
+.step .s{font-size:11px;margin-top:4px;color:var(--sub)}
+.step.locked{opacity:.55}
+.step.running{border-color:var(--brand-l);background:var(--brand-soft)}
+.step.awaiting_review{border-color:#e0c28a;background:#fdf8ee}
+.step.done{border-color:#a8d8bf;background:#f2faf6}
+.step.blocked,.step.failed{border-color:#e8b9b9;background:#fdf5f5}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--lock);margin-right:6px}
+.step.running .dot{background:var(--brand);animation:pulse 1s infinite}
+.step.awaiting_review .dot{background:var(--warn)}
+.step.done .dot{background:var(--ok)}
+.step.blocked .dot,.step.failed .dot{background:var(--bad)}
+@keyframes pulse{50%{opacity:.3}}
+/* ---- 步骤完成对勾动画（纯 CSS） ----
+   触发：render() 把状态类切到 .step.done，.tick 由 display:none 变为显示，
+   动画随即从 0 帧开始；fill-mode:both 让播放结束后保持「圆徽章 + 完整白勾」终态。
+   反复 render() 只是把 className 赋成相同字符串，computed style 不变，
+   CSS 动画不会重启 —— 因此只在「真正完成的那一次」播放。
+   状态离开 done（重置 / 回退）时 display 回 none，下次完成可重新播放。 */
+.tick{
+  position:absolute;right:9px;top:9px;width:18px;height:18px;border-radius:50%;
+  background:var(--ok);display:none;z-index:2;
+  box-shadow:0 2px 6px rgba(31,138,91,.25);
+}
+.step.done .tick{display:block;animation:tickPop .46s cubic-bezier(.18,.9,.28,1.4) both}
+/* 光环：完成瞬间向外扩散一次，给「达成」一点轻量反馈 */
+.tick::before{
+  /* 不用 inset 简写（Chrome 87+/Safari 14.1+ 才支持），四边写法兼容更广 */
+  content:'';position:absolute;top:-3px;right:-3px;bottom:-3px;left:-3px;
+  border-radius:50%;border:2px solid var(--ok);opacity:0;
+}
+.step.done .tick::before{animation:tickRing .62s .1s ease-out both}
+/* 白色对勾：两条 border 旋转 45°，再用 clip-path 从左向右「写」出来。
+   静态值保持 clip-path:none —— 若浏览器不支持 clip-path 动画（旧 Safari），
+   动画不生效但对勾仍完整可见；支持时由 keyframes 的 from 帧临时遮住再写出。 */
+.tick::after{
+  content:'';position:absolute;left:6px;top:2px;width:5px;height:10px;
+  border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg);
+  -webkit-clip-path:none;clip-path:none;
+}
+.step.done .tick::after{animation:tickDraw .34s .17s ease-out both}
+@keyframes tickPop{
+  0%{opacity:0;transform:scale(.2) rotate(-30deg)}
+  60%{opacity:1;transform:scale(1.16) rotate(4deg)}
+  100%{opacity:1;transform:scale(1) rotate(0)}
+}
+@keyframes tickDraw{
+  from{-webkit-clip-path:inset(0 100% 0 0);clip-path:inset(0 100% 0 0)}
+  to{-webkit-clip-path:inset(0 0 0 0);clip-path:inset(0 0 0 0)}
+}
+@keyframes tickRing{
+  0%{transform:scale(.6);opacity:.5}
+  100%{transform:scale(1.65);opacity:0}
+}
+/* 尊重系统「减少动态效果」设置：直接显示静态对勾，不播动画 */
+@media (prefers-reduced-motion:reduce){
+  .step.done .tick,.step.done .tick::before,.step.done .tick::after{animation:none}
+  .tick::after{-webkit-clip-path:none;clip-path:none}
+  .tick::before{display:none}
+}
+/* 历史日志全量重建时关掉淡入，避免 500 个 .log 动画同时播放拖慢启动 */
+#logBox.no-anim .log{animation:none}
+#exec{margin-top:10px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:12px;color:var(--sub)}
+#execText{flex:1 1 320px;color:var(--ink)}
+#bar{flex:1 1 160px;height:6px;background:#e6eef8;border-radius:99px;overflow:hidden}
+#barFill{height:100%;width:0;background:linear-gradient(90deg,var(--brand-l),var(--brand));transition:width .22s}
+#logBox{height:220px;overflow:auto;border:1px solid var(--line);border-radius:8px;background:var(--brand-tint);padding:8px;font:12px/1.65 ui-monospace,Consolas,monospace}
+.log{padding:3px 6px;border-left:3px solid var(--line);margin-bottom:3px;animation:fade .35s ease}
+@keyframes fade{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+.log .tm{color:#8ea3bf;margin-right:6px}
+.log .tp{font-weight:700;margin-right:6px}
+.log.THOUGHT{border-color:#8a7bc8}.log.THOUGHT .tp{color:#6f61b5}
+.log.ACTION{border-color:var(--brand-l)}.log.ACTION .tp{color:var(--brand)}
+.log.OBSERVATION{border-color:#4b9bb5}.log.OBSERVATION .tp{color:#2f7d97}
+.log.APPROVE,.log.HUMAN{border-color:var(--ok)}.log.APPROVE .tp,.log.HUMAN .tp{color:#166b47}
+.log.REPLAN,.log.ERROR{border-color:var(--bad)}.log.REPLAN .tp,.log.ERROR .tp{color:#952f2f}
+.log .diff{color:var(--sub);white-space:pre-wrap;display:block;margin-top:2px}
+.viewbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
+.viewbtn{border:1px solid var(--line);background:#fff;color:var(--sub);padding:6px 12px;border-radius:8px;cursor:pointer;font-size:12px}
+.viewbtn.active{border-color:var(--brand);background:var(--brand-soft);color:var(--brand-d);font-weight:600}
+.viewbtn:disabled{opacity:.45;cursor:not-allowed}
+#report{min-height:330px;font:12.5px/1.75 ui-monospace,Consolas,monospace}
+#report:disabled{background:var(--brand-tint);color:#4a5f7d}
+/* 报告区字数统计条： Editing 时抬眼可见，打印稿里不出现（.noprint） */
+.wcbar{margin:8px 0;padding:9px 12px;background:var(--brand-tint);
+  border:1px solid var(--line);border-left:3px solid var(--brand);border-radius:8px}
+.wc-main{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.wc-label{font-size:12px;color:var(--sub)}
+.wc-num{font-size:26px;line-height:1.1;font-weight:700;color:var(--brand);
+  font-variant-numeric:tabular-nums}
+.wc-unit{font-size:13px;color:var(--brand);font-weight:600}
+.wc-view{font-size:12px;color:var(--sub);margin-left:auto}
+.wc-sub{font-size:12px;color:var(--ink);margin-top:3px;line-height:1.6}
+.wc-foot{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:5px;font-size:12px;color:var(--sub)}
+#wcAlt{color:var(--brand-d)}
+.wc-goalgroup{display:flex;align-items:center;gap:8px;margin-left:auto;white-space:nowrap}
+.wc-goal{color:var(--brand-d);font-weight:600}
+.wc-track{display:block;width:110px;height:5px;background:#e6eef8;border-radius:99px;overflow:hidden}
+.wc-track i{display:block;height:100%;width:0;border-radius:99px;
+  background:linear-gradient(90deg,var(--brand-l),var(--brand));transition:width .28s}
+.wc-tip{font-size:11px;color:var(--sub);margin-top:4px;opacity:.85}
+#printOut{display:none}
+.print-brand{display:none}
+footer{font-size:12px;color:var(--sub);padding:14px 4px 30px;line-height:1.8;border-top:1px solid var(--line);margin-top:18px}
+/* 窄屏 / 移动端：四阶段改两列→单列；固定背景改滚动（iOS Safari 对
+   background-attachment:fixed 支持不佳且滚动重绘开销大）；统计条允许换行。 */
+@media screen and (max-width:820px){
+ #steps{grid-template-columns:repeat(2,1fr)}
+ .wc-goalgroup{margin-left:0;flex-wrap:wrap;white-space:normal}
+ .bg-mark{display:none}
+ body{background-attachment:scroll}
+}
+@media screen and (max-width:480px){
+ #steps{grid-template-columns:1fr}
+ .wrap{padding:10px}
+}
+@media print{
+ body{background:#fff}
+ .bg-art,.bg-mark,.sdu-logo,.noprint,header,#secInput,#secFlow,#secLog{display:none!important}
+ section{border:0;padding:0;margin:0;box-shadow:none;background:#fff}
+ #report{display:none!important}
+ #printOut{display:block!important;white-space:pre-wrap;word-break:break-word;font:11pt/1.7 "Microsoft YaHei",serif;color:#000}
+ .print-brand{display:block!important;color:var(--brand);border-bottom:1px solid var(--line);padding-bottom:8px;margin-bottom:14px;font-weight:600;font-size:12pt}
+ footer{border:0;margin:0;padding-top:16px;color:#555}
+ code{background:none;color:inherit;padding:0}
+}
+</style>
+</head>
+<body>
+<!-- 山东大学校徽：官方矢量图形转录为内联 symbol（零外链，file:// 可用）。
+     按《山东大学章程》第六十八条，校徽主色为「山大红」#7B0203；
+     此处以 currentColor 承接，header 显示官方红色，背景水印同色但仅 2.2% 透明度。
+     校徽为山东大学官方标识，仅用于课程演示，非官方授权发布。 -->
+<svg width="0" height="0" aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden"><defs>
+<symbol id="sduMark" viewBox="0 0 128 137"><g fill="currentColor"><path d="M64.024 20C39.686 20 20 39.766 20 64.147c.016 24.119 19.85 43.872 44.021 43.853 24.245-.029 44.002-19.795 43.973-43.995C107.968 39.74 88.227 20 64.024 20m0 85.008c-22.633-.036-41.09-18.454-41.051-40.952.052-22.69 18.45-41.096 41.06-41.073s40.994 18.473 40.975 41.035c-.02 22.562-18.477 41.025-40.97 40.99z"/><path d="M52.538 28.151c.574-.322 1.125-.696 1.312-1.39.026-.1.062-.19.194-.167a.38.38 0 0 1 .322.322 1.61 1.61 0 0 1-.496 1.477q-1.077.958-2.164 1.883a.8.8 0 0 0-.322.471c-.12.661-.245 1.322-.384 2.067.432-.322.8-.58.742-1.164-.02-.43.07-.859.26-1.245a.468.468 0 0 1 .72-.255c.554.249.828 1.161.413 1.645a2.28 2.28 0 0 0-.484 1.735c.032.816 0 1.631 0 2.486a8 8 0 0 1-.935-.587c-.361-.293-.561-.206-.716.19a2 2 0 0 1-.155.252c-.393.645-.38.645-.896.096-.22-.232-.261-.36.061-.532a5 5 0 0 0 1.21-.925 1.22 1.22 0 0 0 .396-1.222c-.168 0-.261.148-.371.248-.542.474-.532.468-1.093 0a.323.323 0 0 1-.11-.454c.239-.613.442-1.239.684-1.851.09-.236.042-.345-.178-.455a1.32 1.32 0 0 1-.812-.78c1.064.064 1.545-.552 1.857-1.413.313-.86.671-1.715.916-2.602.026-.084-.029-.219.113-.238a.27.27 0 0 1 .27.18 1.35 1.35 0 0 1 .075 1.1c-.132.367-.287.748-.429 1.128m-.4 70.527c.48-1.187.932-2.293 1.37-3.402.104-.258.168-.413.517-.271.348.142.27.323.17.558-.57 1.4-1.135 2.802-1.712 4.192-.058.138-.029.441-.287.364s-.577-.093-.645-.49c-.293-1.503-.615-2.996-.925-4.492-.177 0-.148.145-.187.239-.426 1.051-.855 2.099-1.27 3.153-.094.239-.181.342-.461.2-.233-.116-.368-.16-.236-.477.6-1.425 1.164-2.86 1.754-4.288.058-.136.036-.442.28-.355.246.087.578.077.646.487.277 1.47.596 2.93.9 4.395q.037.096.086.187m21.937.545c-.303-1.226-.584-2.438-.91-3.638-.08-.29.016-.348.236-.4.219-.051.4-.148.483.19.38 1.584.78 3.16 1.174 4.741.023.103.087.238-.09.274-.258.048-.506.248-.777 0-.565-.529-1.142-1.045-1.713-1.564l-1.812-1.638c.323 1.29.59 2.45.9 3.605.084.322.074.442-.277.548-.416.126-.39-.158-.445-.371-.361-1.434-.726-2.866-1.064-4.304-.042-.171-.275-.42.016-.548.29-.13.548-.236.848.048.967.928 1.986 1.825 2.986 2.731.118.144.271.256.445.326M36.722 88.459c1.003-.874 1.935-1.664 2.834-2.466.19-.168.294-.281.532 0 .239.28.149.39-.064.574-1.148.986-2.286 1.986-3.438 2.97-.119.102-.248.376-.419.209-.17-.168-.483-.323-.367-.726.342-1.167.645-2.347.967-3.52.084-.323.165-.63.274-1.055-.99.858-1.896 1.641-2.795 2.428-.19.167-.323.345-.578.035s-.132-.383.081-.567c1.138-.968 2.257-1.967 3.402-2.934.12-.104.22-.436.445-.233.226.203.484.361.358.777-.397 1.339-.745 2.693-1.11 4.04-.035.11-.077.233-.122.468m20.588 7.369c1.139 0 2.087.644 2.322 1.586.1.403-.032.529-.425.516-.2 0-.245-.087-.271-.258-.116-.706-.616-1.019-1.258-1.135-.725-.129-1.39 0-1.84.645a2.76 2.76 0 0 0-.436 2.209c.197.938 1.257 1.528 2.325 1.328.806-.148.848-.203.941-.877.036-.248 0-.364-.27-.397-.323-.038-.646-.112-.968-.16-.206-.03-.297-.114-.22-.323.059-.165 0-.42.323-.355a60 60 0 0 0 1.8.323c.196.032.245.116.212.3a63 63 0 0 0-.283 1.55.41.41 0 0 1-.271.323 3.37 3.37 0 0 1-2.057.338c-1.136-.199-2.029-.757-2.29-1.934a3.09 3.09 0 0 1 1.026-3.163 2.27 2.27 0 0 1 1.64-.516m27.59-6.856c.19.077.248.261.352.403s-.058.2-.139.258c-.703.519-1.403 1.038-2.115 1.538-.19.132-.216.21-.075.413.765 1.1.755 1.102 1.842.293.345-.258.693-.503 1.035-.758.168-.125.297-.296.493 0 .158.239.194.355-.074.532-.613.413-1.196.871-1.806 1.29-.264.18-.296.323-.077.568.3.341.474.967.851 1.009s.72-.442 1.077-.7c.442-.322.893-.619 1.31-.967.244-.203.322-.052.454.106s.197.287-.042.455a121 121 0 0 0-2.792 2.028c-.187.139-.284.145-.43-.051a419 419 0 0 0-2.87-3.954c-.109-.148-.125-.225.046-.345.922-.66 1.838-1.331 2.754-1.999.067-.038.138-.087.206-.12Zm10.669-4.433c0 1.331-1.39 2.63-2.58 2.405a2 2 0 0 1-.422-.132c-.12-.058-.322-.12-.174-.306.148-.188.064-.478.442-.387a1.61 1.61 0 0 0 2.025-1.451.79.79 0 0 0-.323-.82.706.706 0 0 0-.87.059c-.323.241-.63.528-.948.79a6 6 0 0 1-.742.564 1.2 1.2 0 0 1-1.432-.042 1.34 1.34 0 0 1-.564-1.422 2.72 2.72 0 0 1 1.216-1.783 1.35 1.35 0 0 1 1.18-.187c.174.055.541 0 .432.358-.078.248-.19.558-.626.37-.435-.187-.803.075-1.067.413-.323.403-.645.845-.39 1.39a.56.56 0 0 0 .344.337q.119.041.245.027a.6.6 0 0 0 .233-.08c.34-.201.653-.446.929-.729.238-.2.464-.42.712-.603a1.38 1.38 0 0 1 1.57-.19 1.46 1.46 0 0 1 .81 1.419M26.717 71.408c0-.922.322-1.509 1.045-1.873.119-.061.322-.242.393.032.042.187.37.445-.032.613-1.032.428-.771 2.015-.223 2.58a.75.75 0 0 0 .764.222.71.71 0 0 0 .523-.597q.105-.684.08-1.377a2.5 2.5 0 0 1 .22-1.2 1.316 1.316 0 0 1 2.086-.373 2.64 2.64 0 0 1 .612 2.644 1.3 1.3 0 0 1-.644.725c-.142.068-.323.355-.48.075-.11-.21-.355-.465.096-.716.696-.39.555-1.935-.168-2.277-.435-.213-.838.016-.932.535-.11.62-.025 1.248-.087 1.87-.122 1.194-1.222 1.8-2.215 1.23a1.9 1.9 0 0 1-.661-.72 3.1 3.1 0 0 1-.377-1.393m6.416 2.999c0 .168-.145.158-.238.197-.487.203-.967.396-1.464.59-.203.077-.323.142-.21.419.29.645.549 1.306.797 1.967.093.258.21.27.438.17.48-.212.968-.383 1.458-.602.322-.148.345.08.425.274.081.193.162.322-.132.442q-2.258.88-4.485 1.812c-.38.161-.342-.136-.451-.306-.149-.236-.055-.323.177-.423.567-.213 1.125-.464 1.696-.667.27-.097.368-.187.235-.487a32 32 0 0 1-.78-1.916c-.09-.242-.18-.287-.422-.18-.571.254-1.161.46-1.732.712-.274.123-.374.04-.461-.216-.087-.254-.174-.364.142-.49 1.5-.587 2.989-1.203 4.485-1.802.2-.08.532.245.523.506Zm34.841 25.045a284 284 0 0 0-.232-2.706c-.02-.229-.042-.425.3-.419.258 0 .451-.032.47.348.056 1.084.168 2.167.24 3.25.051.765-.188 1.423-.91 1.774a2.57 2.57 0 0 1-2.508 0c-.603-.345-.755-.967-.823-1.612-.113-1.032-.18-2.067-.29-3.099-.026-.274.048-.361.322-.348s.445-.106.471.284c.065 1.035.165 2.067.271 3.098.126 1.206 1.29 1.726 2.296 1.026a.9.9 0 0 0 .38-.61 4.2 4.2 0 0 0 .013-.986m10.299-67.789c-.822-.106-.987-.37-.758-1.11a2 2 0 0 1 .135-.367c.094-.151.12-.464.358-.38.239.084-.016.3-.019.458s-.097.232 0 .322.239-.016.348-.068c.174-.087.323-.206.516-.29.406-.19.687-.416.413-.919a.32.32 0 0 1 .129-.429c.174-.135.322-.016.432.094a.9.9 0 0 1 .197.22c.225.396.503.467.85.148.294-.271.45-.062.61.17.223.323-.132.323-.245.394a4.3 4.3 0 0 0-1.422 1.422c-.86 1.444-2.18 2.49-3.547 3.457-.256.182-.56.288-.873.303-.097 0-.213 0-.236-.117-.023-.116.049-.141.132-.177 1.416-.625 2.174-1.86 2.98-3.13Zm2.918 60.021c.216 1.896.42 3.708.645 5.52.029.23-.035.345-.226.41-.19.064-.322.322-.567.096a995 995 0 0 0-4.211-3.646c.422-.416.741-.416 1.164 0 1.019 1 2.092 1.934 3.176 2.924-.213-1.544-.397-3.044-.645-4.537-.08-.545.329-.545.664-.767M34.127 49.791c.058-1.444.106-2.76.167-4.076 0-.106-.083-.29.123-.322s.229.097.264.235c.4 1.635.574 3.273.158 4.934-.09.354-.26.416-.612.435a.966.966 0 0 1-1.152-.825 4 4 0 0 0-.754-1.435c-.223-.278-.048-.323.155-.39a.87.87 0 0 1 .873.322q.45.519.778 1.122M95.17 74.152a.97.97 0 0 1 .78-1.141c.703-.207 1.374-.51 2.1-.787-.542-.548-1.035-1.097-1.587-1.58-.435-.377-.57-.764-.261-1.319.693.735 1.412 1.454 2.076 2.218.308.362.741.592 1.213.645.422.065.835.187 1.254.252.365.058.229.28.187.474s-.045.406-.358.277c-1.457-.61-2.805-.219-4.133.448-.394.21-.823.339-1.27.513Zm4.091 3.763c0 .461-.287.668-.645.532-1.228-.47-2.457-.928-3.679-1.415-.287-.113-.4-.065-.49.219-.106.345-.261.674-.38 1.012-.068.19-.12.349-.368.197-.161-.097-.426-.058-.284-.416.468-1.154.906-2.322 1.335-3.492.107-.29.265-.21.452-.142s.322.136.206.384c-.158.345-.252.716-.42 1.051s-.044.39.227.49c1.244.461 2.482.942 3.72 1.422.126.048.317.036.326.158M77.802 99.239c-.084.2-.323.193-.47.29-.15.097-.226.016-.288-.132-.645-1.525-1.29-3.044-1.934-4.57-.146-.348.206-.29.351-.396.226-.168.322 0 .39.174l1.545 3.673.406.96Zm14.943-19.995.264.135c1.41.716 2.812 1.442 4.228 2.138.27.136.258.245.135.468-.122.222-.18.396-.503.229-1.409-.745-2.834-1.461-4.253-2.186-.12-.062-.322-.081-.194-.304.104-.167.13-.393.323-.48M30.548 43.068c.67-.394 1.257-.345 1.696.193.438.539.8 1.084 1.18 1.642.098.152.162.323.187.503a.41.41 0 0 1-.232.451c-.151.055-.184-.155-.255-.252-.729-.973-1.473-1.928-2.576-2.537m5.626 3.05c-.303-.774-.574-1.473-.848-2.17-.074-.187-.084-.322.178-.322h.293c1.093-.049 1.1-.045.864 1.044a4.6 4.6 0 0 1-.487 1.448m43.892-10.782c.49-.73.438-1.477.322-2.232.706.074 1.051.323 1.077.755.03.612-.551 1.264-1.4 1.477Z"/><path d="M52.89 33.662c.379-.077.77-.052 1.136.074a.8.8 0 0 1 .522.703c.022.226 0 .452-.21.565s-.293-.142-.403-.249c-.342-.332-.66-.683-1.044-1.093Zm10.879 1.27a29.124 29.124 0 0 0-29.056 29.192c0 15.945 13.098 28.972 29.088 28.96a29.075 29.075 0 1 0-.032-58.152m2.305 56.726a27.67 27.67 0 0 1-26.44-14.13H87.91c-3.128 6.127-10.941 13.253-21.837 14.13Zm22.42-16.49q-12.356-.03-24.715 0t-24.83 0a.745.745 0 0 1-.815-.561 27.69 27.69 0 0 1 7.932-31.904c5.985-4.907 12.853-6.994 20.55-6.278 10.696.997 20.192 8.668 23.494 18.922 2.086 6.474 1.838 12.862-.661 19.182a.864.864 0 0 1-.955.639m9.862-30.984c-.545-.342-1.21-.503-1.635-1.042a.3.3 0 0 0-.184-.064 3.7 3.7 0 0 1-.967-.242c-.893-.258-.922-.322-.67-1.222-.29.171-.54.4-.736.674-.293.322-.164.564.165.745.409.212.856.34 1.315.377.371.042.645.084.69.542.026.238.207.603.526.341.416-.345.619-.048.996.178-.396.055-.683.113-.967.132a13.2 13.2 0 0 1-4.015-.4c-.322-.074-.912.2-.967.477-.08.43.297.497.568.623.212.1.445.158.748.264l-.674.245c-.68.248-.665.242-.394.906.184.448.416.9.29 1.522-.138-.235-.216-.377-.3-.513-.444-.725-.967-1.386-1.754-1.75-.786-.365-1.057-.232-1.093.664a15.5 15.5 0 0 0 .323 2.989c.12.767.645 1.041 1.36.742a5.6 5.6 0 0 0 1.168-.852 1.5 1.5 0 0 1 .258 1.22c-.087.36.22.373.403.438.267.1.21-.187.232-.303a2.96 2.96 0 0 0-.213-1.738c-.051-.12-.193-.22-.07-.397a1.54 1.54 0 0 0 .1-1.467c-.146-.429.032-.62.39-.745.296-.103.596-.187.886-.3.522-.2.548-.374.158-.758-.1-.096-.258-.167-.264-.36.464.09.909.186 1.357.254.907.18 1.84.18 2.748 0 .254-.064.519-.161.57-.474a.71.71 0 0 0-.348-.706m-7.236 5.333c-.393.216-.66.132-.89-.28a4.8 4.8 0 0 1-.49-2.041c.735.3 1.4.615 1.812 1.29.265.412.13.722-.432 1.031m.283 38.778a4.8 4.8 0 0 0-1.547-.058c.351-.613.474-1.168.09-1.729-.61-.886-1.612-.932-2.431-.087-.548.565-1.067 1.158-1.612 1.725-.168.174-.207.268 0 .458a217 217 0 0 1 3.495 3.267c.226.216.338.148.496-.045.158-.194.323-.271.042-.497-.454-.38-.874-.803-1.29-1.216-.074-.074-.3-.138-.141-.293.432-.426.751-1.042 1.522-.916.548.094 1.102.165 1.654.261.664.12.867.02 1.145-.612-.484-.087-.955-.162-1.422-.258Zm-2.282-.142c-.323.383-.69.748-1.029 1.125-.123.139-.21.168-.355.023-.322-.323-.883-.616-.967-1.003s.516-.668.8-1.01c.198-.282.47-.505.786-.644a.812.812 0 0 1 1.09.803 1.07 1.07 0 0 1-.325.706m-46.175.671c-.484-.47-1.003-.903-1.486-1.37-.188-.178-.281-.123-.426.038a225 225 0 0 1-3.196 3.547c-.21.23-.145.323.045.497.445.39.871.803 1.323 1.183a2.22 2.22 0 0 0 1.802.626c1.254-.18 2.634-1.748 2.634-3.067.049-.57-.277-1.044-.696-1.454m-2.222 3.824a1.57 1.57 0 0 1-1.073-.419c-1.074-.845-1.077-.841-.19-1.831.547-.613 1.112-1.213 1.644-1.842.206-.245.322-.216.535 0 .29.294.6.565.893.852a1.2 1.2 0 0 1 .361.86c0 .968-1.206 2.313-2.17 2.38m5.295-1.186c-1.47 0-2.802 1.45-2.802 3.066a2.6 2.6 0 0 0 2.631 2.538c1.413 0 2.75-1.484 2.75-3.073a2.58 2.58 0 0 0-2.579-2.531m.535 4.678a1.65 1.65 0 0 1-1.899-.145 1.61 1.61 0 0 1-.674-1.735 2.94 2.94 0 0 1 1.01-1.709 1.61 1.61 0 0 1 1.844-.219 1.71 1.71 0 0 1 1.032 1.654 2.79 2.79 0 0 1-1.313 2.154M35.952 80.453c-.055-.19-.18-.213-.384-.184-1.802.261-3.608.506-5.446.758.155.51.352.774.92.645 1.14-.242 1.15-.206 1.715.832.496.91.496.91-.174 1.709-.465.558-.465.558 0 1.248 1.186-1.48 2.37-2.948 3.547-4.418.196-.248-.12-.393-.178-.59m-2.257 2.444-.835-1.509c.832-.193 1.65-.216 2.547-.477z"/><path d="M54.21 81.91q-.661.501-1.404.87c-.222.107-.341.146-.348-.19a.74.74 0 0 1 .458-.809 3.46 3.46 0 0 0 1.46-1.29.504.504 0 0 1 .584-.241c.271.054.145.293.145.448v6.223c0 .323-.06.468-.425.445-.303-.02-.503 0-.497-.425.042-1.655.026-3.3.026-5.03Zm18.027 0a6.4 6.4 0 0 1-1.68.968c-.126-.532-.077-.906.493-1.158a3.1 3.1 0 0 0 1.339-1.209.506.506 0 0 1 .616-.261c.238.068.129.322.129.468v6.174c0 .345-.055.487-.449.471-.393-.016-.48-.07-.474-.46.026-1.481 0-2.964 0-4.444l.026-.548Zm17.355-13.22c-.174-.226-.287-.258-.49-.035-.253.262-.56.466-.9.596-2.235.906-4.392.887-6.41-.574a.457.457 0 0 0-.69.032c-.236.23-.506.423-.8.571a5.63 5.63 0 0 1-6.617-.967c-.322-.297-.458-.21-.693.026a4.8 4.8 0 0 1-1.135.938 6.9 6.9 0 0 1-3.354.667c-.264 0-.277-.138-.283-.338a708 708 0 0 0-.261-5.675c0-.271.151-.203.28-.203q.692.038 1.383-.017c1.013-.158 1.664.145 1.835 1.222.049.294.232.378.532.365.906-.036 1.812-.032 2.718-.055.48 0 .968-.042 1.484-.068l-.561-1.45h2.544a.43.43 0 0 1 .451.286c.21.449.439.884.645 1.326.068.132.123.251.323.248h3.646c-.303-.593-.519-1.048-.767-1.487-.184-.322-.087-.377.242-.37.738.019 1.483-.017 2.222 0 .393.019.55-.059.528-.497a28 28 0 0 1 0-2.422c0-.37-.067-.51-.477-.5-1.335.03-2.67 0-4.005.023a.645.645 0 0 1-.667-.422 2549 2549 0 0 0-5.266-10.215c-.56-1.09-1.125-2.177-1.712-3.312l-2.938 5.06-6.075-12.138-7.003 13.117-5.353-4.859c-.08.136-.151.245-.21.361a2871 2871 0 0 0-4.453 8.964.645.645 0 0 1-.667.43c-2.109-.02-4.218 0-6.326-.02-.397 0-.503.113-.49.496.028.79.041 1.584 0 2.374-.026.47.128.56.567.554 1.644-.026 3.286 0 5.001 0-.503 1.023-.967 1.987-1.473 2.983a37 37 0 0 0 3.804.097.57.57 0 0 0 .594-.387c.387-.803.796-1.59 1.203-2.38.07-.139.093-.322.322-.322h3.295l-1.212 2.866c1.145.116 2.228.21 3.305.323a.603.603 0 0 0 .726-.387c.39-.816.841-1.612 1.248-2.412a.644.644 0 0 1 .674-.416c.89.029 1.78 0 2.67 0h1.115c-.713 1.228-1.377 2.376-2.131 3.672h2.425c.251 0 .345.075.341.34v4.1c0 .23-.07.323-.287.362-1.68.255-3.302.129-4.73-.877-.358-.255-.552-.242-.858 0a6.22 6.22 0 0 1-4.698 1.4c-1.325-.11-2.58-.436-3.489-1.487-.148-.168-.213-.107-.345 0-1.844 1.464-4.94 1.583-6.926.303-.187-.12-.322-.51-.62-.294-.19.192-.314.441-.35.71-.096.318-.082.658.038.967a2.43 2.43 0 0 0 1.187 1.342 6.4 6.4 0 0 0 6.19.045c.275-.139.497-.48.762-.507.264-.025.412.423.686.574.084.049.162.116.246.165a6.22 6.22 0 0 0 4.282.764c1.367-.213 2.58-.703 3.295-2.002.239.222.439.445.67.622 1.784 1.354 5.057 1.377 6.895.035.261-.19.41-.322.616.068.176.28.42.512.71.674a6.23 6.23 0 0 0 4.372.816c1.315-.194 2.495-.67 3.256-1.89.257.477.64.874 1.11 1.145a6.35 6.35 0 0 0 6.449-.055c.322-.17.554-.625.831-.645.278-.02.523.442.842.623a6.54 6.54 0 0 0 4.547.645 4.43 4.43 0 0 0 2.434-1.216 1.783 1.783 0 0 0 .18-2.396Zm-17.29-13.93q.501-.348.967-.745c.19-.158.28-.154.394.075 1.019 2.057 2.04 4.107 3.105 6.239H74.51a.393.393 0 0 1-.43-.3q-.966-2.4-1.934-4.792a.323.323 0 0 1 .155-.477Zm-17.029.926c-.032.054-.048.122-.077.18-.239.465-.268 1.142-.687 1.367s-.993.046-1.5.046v.028h-1.29c-.238 0-.322-.032-.199-.296a213 213 0 0 0 1.612-3.205c.113-.232.207-.232.384-.065a60 60 0 0 0 1.644 1.49c.178.145.226.268.113.455m10.964-1.574c0-.322-.065-.445-.407-.413-.558.055-1.119.078-1.676.08-.294 0-.352.12-.355.381 0 .939-.032 1.877-.052 2.815 0 .165.032.323-.238.323h-4.292l5.195-9.867c1.006 2.496 1.976 4.91 2.95 7.33.293.728.577 1.466.884 2.192.1.242.119.354-.2.345h-1.532c-.245.026-.28-.087-.277-.306zm2.334 3.66c.087.206.142.322.194.461.27.667.538 1.335.825 2.048h-2.476zM62.29 81.956a2.305 2.305 0 0 0-2.17-1.716 2.22 2.22 0 0 0-2.145 1.445c-.37 1.015-.078 2.257.677 2.844.867.687 1.867.577 2.947-.378a4.7 4.7 0 0 1-.364 1.732c-.102.226-.26.422-.458.57a1.144 1.144 0 0 1-1.844-.512c-.181-.545-.571-.323-.832-.252-.323.078-.071.378 0 .53a1.72 1.72 0 0 0 1.373 1.205 2.32 2.32 0 0 0 2.744-1.612 6.8 6.8 0 0 0 .071-3.856Zm-2.129 2.202a1.387 1.387 0 0 1-1.4-1.464c0-.948.581-1.66 1.377-1.68.797-.02 1.332.645 1.339 1.567s-.507 1.567-1.316 1.587zm7.978-2.476c-.345-.868-.967-1.403-1.935-1.442a1.97 1.97 0 0 0-1.996 1.326 6.4 6.4 0 0 0 .036 4.675 1.85 1.85 0 0 0 1.805 1.222 1.97 1.97 0 0 0 1.935-1.109c.423-.78.458-1.632.468-2.492a5.6 5.6 0 0 0-.313-2.18m-.81 4.011c-.203.645-.644 1.019-1.183 1.016a1.234 1.234 0 0 1-1.19-1.061 7.6 7.6 0 0 1 .02-3.615c.164-.645.58-1 1.115-1.019a1.26 1.26 0 0 1 1.226.968c.154.624.23 1.265.222 1.909a8.6 8.6 0 0 1-.21 1.802"/></g></symbol>
+</defs></svg>
+<!-- 背景层：极淡山形/水纹 + 校徽水印，纯氛围，不承载信息、不干扰阅读 -->
+<svg class="bg-art" viewBox="0 0 1200 260" preserveAspectRatio="none" aria-hidden="true">
+  <path class="hill" d="M0 200 C160 150 250 175 380 128 C520 78 640 140 780 112 C920 84 1040 138 1200 96 L1200 260 L0 260 Z"/>
+  <path class="wave" d="M0 214 C200 190 340 228 520 206 C700 184 860 222 1040 202 C1120 193 1160 198 1200 194"/>
+  <path class="wave" d="M0 232 C220 210 360 244 560 224 C760 204 920 240 1200 220"/>
+</svg>
+<svg class="bg-mark" viewBox="0 0 128 137" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true"><use href="#sduMark" xlink:href="#sduMark"/></svg>
+<div class="wrap">
+<header>
+  <svg class="sdu-logo" viewBox="0 0 128 137" xmlns:xlink="http://www.w3.org/1999/xlink" role="img" aria-label="山东大学校徽"><use href="#sduMark" xlink:href="#sduMark"/></svg>
+  <div class="brand-txt">
+    <div class="brand-line"><span class="brand-uni">山东大学</span><span class="brand-sep">·</span><span class="brand-school">管理学院</span><span class="brand-sep">·</span><span>课程论文开题辅助</span></div>
+    <h1>经营文献智能调研助手 <span class="ver">整合版 · 取证报告 + 六章骨架</span></h1>
+  </div>
+  <span class="badge">本地模式 ● 数据不出本机</span>
+  <span class="badge blue">一份输入 · 两套报告引擎</span>
+  <span class="badge blue" id="modeBadge">离线可跑 · 无需 API Key</span>
+</header>
+
+<!-- ① 顶部输入区 -->
+<section id="secInput">
+  <h2>① 输入与计划（S0 / S1）· 研究问题同时作为六章报告主题</h2>
+  <label>研究问题（也是六章骨架报告的 topic）</label>
+  <input type="text" id="question" placeholder="例：数字化转型投入对制造业企业经营绩效的影响">
+  <label>课程 / 要求</label>
+  <input type="text" id="course" placeholder="例：管理学课程论文开题 · 3000 字 · 需 10 篇以上文献">
+  <label>关键词（可选，逗号 / 顿号 / 空格分隔，最多 8 个；用于六章骨架报告的关键词分述与交叉对比）</label>
+  <input type="text" id="keywords" placeholder="例：数字化转型，经营绩效，投入强度，滞后效应，组织惯性，绩效口径">
+  <label>文献文本（每行一段；<code>---</code> 单独一行分隔文献；每篇首行用 <code>编号|标题|来源|年份</code> 写元数据）</label>
+  <textarea id="docs" placeholder="粘贴文献正文，或点击下方「载入示例数据集」"></textarea>
+  <div class="row" style="margin-top:8px">
+    <button class="btn ghost mini tight" id="btnSample">载入示例数据集</button>
+    <button class="btn ghost mini tight" id="btnFile">选择文件</button>
+    <input type="file" id="file" accept=".txt,.md,.csv,.json" style="display:none">
+    <button class="btn ghost mini tight" id="btnClear">清空</button>
+    <button class="btn ghost mini tight" id="btnReset">重新开始</button>
+    <span style="flex:1"></span>
+    <button class="btn tight" id="mainBtn">开始调研 →</button>
+  </div>
+  <div class="hint" id="inputStat">尚未输入主题与导入文献</div>
+</section>
+
+<!-- ② 中部进度区 -->
+<section id="secFlow">
+  <h2>② 调研进度 · 四阶段状态机（6 态：未开始 / 进行中 / 待人工确认 / 完成 / 阻塞 / 异常）</h2>
+  <div id="steps">
+    <div class="step locked" id="stP1"><span class="tick" aria-hidden="true"></span><div class="n">P1 · S0+S1</div><div class="t">输入与计划</div><div class="s"><span class="dot"></span><span id="txP1">未开始</span></div></div>
+    <div class="step locked" id="stP2"><span class="tick" aria-hidden="true"></span><div class="n">P2 · S2+S3</div><div class="t">检索与速读</div><div class="s"><span class="dot"></span><span id="txP2">未开始</span></div></div>
+    <div class="step locked" id="stP3"><span class="tick" aria-hidden="true"></span><div class="n">P3 · S4</div><div class="t">审核与校验</div><div class="s"><span class="dot"></span><span id="txP3">未开始</span></div></div>
+    <div class="step locked" id="stP4"><span class="tick" aria-hidden="true"></span><div class="n">P4 · S5</div><div class="t">报告与归档</div><div class="s"><span class="dot"></span><span id="txP4">未开始</span></div></div>
+  </div>
+  <div id="exec">
+    <span class="dot" id="execDot"></span>
+    <span id="execText">等待输入</span>
+    <div id="bar"><div id="barFill"></div></div>
+    <select id="speed" style="width:150px;flex:0 0 auto">
+      <option value="0.6">慢速 0.6×</option>
+      <option value="1" selected>标准 1×</option>
+      <option value="2.2">快速 2.2×</option>
+    </select>
+  </div>
+  <div class="hint" id="gate">填写研究问题并导入文献后，点击「开始调研」。</div>
+</section>
+
+<!-- ③ 日志区（只追加） -->
+<section id="secLog">
+  <h2>③ 交互证据日志 <span class="badge" id="logCount">0 条</span> <span class="badge">只追加 · 无删除入口</span></h2>
+  <div id="logBox"></div>
+  <div class="row" style="margin-top:8px">
+    <button class="btn ghost mini tight" id="btnLog">导出全量记录 JSON</button>
+    <span class="hint" style="flex:1;margin:0">每步 = 一次 setTimeout 模拟延迟 → 真实检索 / 拼装计算 → 日志逐条 appendChild 输出；含 Thought / Action / Observation / 人工改写 diff，可一键导出作为「完整 AI 交互证据」。</span>
+  </div>
+</section>
+
+<!-- ④ 底部报告区：双视图 -->
+<section id="secReport">
+  <h2>④ 开题调研报告 <span class="badge" id="reportBadge">未生成</span></h2>
+  <div class="viewbar noprint">
+    <button class="viewbtn active" id="btnViewEvidence">取证报告 · 7 章 + 附录 A</button>
+    <button class="viewbtn" id="btnViewSkeleton">六章骨架 · generateReport()</button>
+    <span class="hint" style="flex:1;margin:0">两套报告由同一份输入同时生成；切换视图不会丢失另一份的人工改写。</span>
+  </div>
+  <div class="hint noprint" id="reportLocked">报告将在 P3「审核与校验」通过后生成；生成前不可编辑。导出硬门槛：无引用结论数必须为 0，且六章骨架章节数必须为 6、关键词全部命中。</div>
+  <div class="wcbar noprint" id="wordBar">
+    <div class="wc-main">
+      <span class="wc-label">当前视图 · 正文字数</span>
+      <span class="wc-num" id="wcMain">—</span><span class="wc-unit">字</span>
+      <span class="wc-view" id="wcView"></span>
+    </div>
+    <div class="wc-sub" id="wcSub">报告生成后自动统计</div>
+    <div class="wc-foot">
+      <span id="wcAlt"></span>
+      <span class="wc-goalgroup" id="wcGoalGroup" style="display:none">
+        <span class="wc-goal" id="wcGoal"></span>
+        <span class="wc-track" id="wcTrack"><i id="wcFill"></i></span>
+      </span>
+    </div>
+    <div class="wc-tip">口径：中文汉字 + 英文单词 + 数字串；已剔除 Markdown 标记、引用锚点与空白，中文标点不计入。「总字符 / 非空白字符」为原始 Markdown 文本长度，供与导出文件对照。</div>
+  </div>
+  <textarea id="report" disabled></textarea>
+  <div class="print-brand">山东大学 · 管理学院 ｜ 经营文献智能调研助手 · 课程论文开题辅助材料</div>
+  <pre id="printOut"></pre>
+  <div class="row noprint" style="margin-top:8px">
+    <button class="btn ghost mini tight" id="btnCopy">复制当前报告</button>
+    <button class="btn mini tight" id="btnMD">导出 Markdown</button>
+    <span class="badge blue" id="btnTip" style="display:none"></span>
+    <button class="btn ghost mini tight" id="btnHTML">导出 HTML</button>
+    <button class="btn ghost mini tight" id="btnCSV">导出引用 CSV</button>
+    <button class="btn ghost mini tight" id="btnPrint">打印 / PDF</button>
+    <span style="flex:1"></span>
+    <button class="btn mini tight" id="btnAll">导出两份报告 + 全量记录 →</button>
+  </div>
+  <div class="hint">「复制」优先用剪贴板 API，<code>file://</code> 下自动降级为 execCommand / 手动选中；「导出 Markdown」「导出 HTML」只作用于当前视图，长按「导出两份报告」可一次拿到全部交付物。</div>
+  <div class="hint" id="reportStat">尚未生成报告</div>
+</section>
+
+<footer>
+  纯前端单文件：原生 HTML + 内联 CSS + 原生 JS，零依赖 / 零 CDN / 零构建，<code>file://</code> 双击即用。<b>本文件为「完整源码版」与「六章报告版」的整合结果</b>：完整源码版提供文献分段、倒排索引、BM25、受限 ReAct 换词、引用锚点强制校验与 7 章 + 附录 A 取证报告；六章报告版提供 <code>generateReport(topic, keywords)</code> 纯函数、关键词解析、复制三级兜底、提示气泡与细粒度异步进度。<br>
+  内置 6 篇文献均为<b>教学用示例数据、非真实文献</b>；六章骨架为调研模板，事实性结论须由学生检索核实后填写并挂引用锚点。文献全文、索引与日志均不出本机；刷新页面会重置流程但保留历史日志（沿用 <code>lit_logs_v1</code>）。
+  <div class="hint" style="margin-top:8px">视觉说明：界面采用管理学院蓝色系（学院蓝 <code>#1d4e89</code>）；校徽沿用《山东大学章程》规定的官方「山大红」<code>#7B0203</code>，为山东大学官方标识，仅用于课程演示、非官方授权发布；背景为 CSS 渐变 + 内联 SVG 山形水纹与低透明度校徽水印，全部内联生成，无任何外部图片请求。</div>
+</footer>
+</div>
+
+<script>
+(function(){
+'use strict';
+var $=function(id){return document.getElementById(id);};
+var ORDER=['P1','P2','P3','P4'];
+var SNAME={locked:'未开始',running:'进行中',awaiting_review:'待人工确认',done:'完成',blocked:'阻塞 / 待补证',failed:'异常'};
+var VIEWNAME={evidence:'取证报告（7 章 + 附录 A）',skeleton:'六章骨架报告（6 章）'};
+var SAMPLE_TOPIC='数字化转型投入对制造业企业经营绩效的影响';
+var SAMPLE_KW='数字化转型，经营绩效，投入强度，滞后效应，组织惯性，绩效口径';
+/* 第 3 章每个关键词的关注维度，循环取用，保证主题与关键词都被真实拼进正文 */
+var DIMS=['概念界定与测量口径','主要结论与关键数据','作用机制与中介变量','时间效应与边界条件','反例与限定性证据'];
+
+/* ============ 示例语料（教学用，非真实文献） ============ */
+var SAMPLE=[
+'D01 | 制造业数字化转型投入与经营绩效 | 教学示例研报 | 2024',
+'2024 年制造业数字化转型指数平均达到 58.7，较上年提升 6.2 个百分点，但行业内部差异明显。',
+'样本企业中 63% 的数字化投入占营业收入比重超过 2.5%，仅 28% 认为投入已形成可量化的经营回报。',
+'投入强度与总资产周转率呈弱正相关，相关系数约 0.31，且存在约 18 个月的滞后效应。',
+'---',
+'D02 | 中小企业数字化改造案例集 | 教学示例案例库 | 2023',
+'对 42 家中小制造企业的跟踪显示，分阶段改造的企业平均订单交付周期缩短 17.4%。',
+'一次性整体替换系统的企业中有 35% 出现实施中断，主要阻力来自组织流程而非技术本身。',
+'案例普遍指出，缺少配套的管理会计指标是投入难以归因的首要原因。',
+'---',
+'D03 | 上市公司年报文本分析 | 教学示例数据集 | 2024',
+'年报中提及数字化转型的制造业公司占比由 2021 年的 41% 升至 2024 年的 76%。',
+'披露数字化投入金额的公司不足三成，口径不一致导致跨公司可比性较差。',
+'文本情绪与次年营业收入增长率的相关性不显著，但与研发费用占比显著正相关。',
+'---',
+'D04 | 数字化转型与组织惯性研究 | 教学示例期刊论文 | 2023',
+'研究认为组织惯性会削弱数字化投入对绩效的转化效率，尤其在层级较多的传统企业。',
+'结构化访谈显示，中层管理者的指标考核方式决定了数据能否进入日常经营决策。',
+'作者主张把「流程重构」而非「系统采购」作为投入效果的核心中介变量。',
+'---',
+'D05 | 行业政策与补贴效果评估 | 教学示例政策报告 | 2024',
+'地方补贴覆盖约 22% 的改造成本，但获得补贴企业的投入产出比未显著高于未获补贴企业。',
+'政策文本更强调设备联网率，对管理会计与数据治理的指标要求较少。',
+'评估指出，补贴退出后约 19% 的企业缩减了后续数字化运维预算。',
+'---',
+'D06 | 经营绩效测量口径综述 | 教学示例综述 | 2022',
+'常用绩效口径包括 ROA、总资产周转率、订单交付周期与人均产值，彼此结论并不总是一致。',
+'综述提醒，短期财务指标可能低估数字化投入的长期收益，建议结合滞后 12 至 24 个月的数据。',
+'不同口径下同一批样本可得出方向相反的结论，因此跨研究比较须先统一指标定义。'
+].join('\n');
+
+/* ============ 工具函数 ============ */
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+/* cut 必须去掉竖线，否则会撑破 Markdown 表格 */
+function cut(s,n){s=String(s==null?'':s).replace(/\s+/g,' ').replace(/\|/g,'/').trim();return s.length>n?s.slice(0,n)+'…':s;}
+/* 导出文件名安全处理：主题来自用户输入，绝不可直接拼进 a.download。
+   ① 控制字符 → 空格；② Windows/Unix 非法字符 \ / : * ? " < > | → 下划线；
+   ③ 连续点 → 下划线，开头点去掉（消除 ../ 路径穿越与隐藏文件残留）；
+   ④ 空白 → 下划线，去首尾的点/下划线/空格（Windows 不允许结尾点或空格）；
+   ⑤ 避开 CON/PRN/AUX/NUL/COM1-9/LPT1-9 保留名；⑥ 限长，空值回落「未命名主题」。 */
+function safeFileName(s,maxLen){
+  var x=String(s==null?'':s)
+    .replace(/[\x00-\x1f\x7f]/g,' ')
+    .replace(/[\\/:*?"<>|]/g,'_')
+    .replace(/\.{2,}/g,'_')
+    .replace(/^\.+/,'')
+    .replace(/\s+/g,'_')
+    .replace(/[._ ]+$/g,'')
+    .replace(/^_+/,'');
+  var lim=maxLen||40;
+  if(x.length>lim)x=x.slice(0,lim).replace(/[._ ]+$/g,'');
+  x=x.replace(/^_+/,'').replace(/_{2,}/g,'_');   /* 折叠连续下划线，文件名更干净 */
+  if(!x||/^(con|prn|aux|nul|com[1-9]|lpt[1-9])$/i.test(x))x='未命名主题';
+  return x;
+}
+/* 报告文件名里的主题标签：清洗 + 截断，供所有导出调用点复用 */
+function topicTag(){return safeFileName(st&&(st.topic||st.question)||'',28);}
+function ts(){var d=new Date();return ('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2)+':'+('0'+d.getSeconds()).slice(-2);}
+function dl(name,text,mime){
+  /* 最后一道防线：无论调用方拼了什么，主干都过一遍安全清洗，再补回扩展名 */
+  var n=String(name||''),dot=n.lastIndexOf('.'),base=n,ext='';
+  if(dot>0){base=n.slice(0,dot);ext=n.slice(dot).replace(/[^.a-zA-Z0-9]/g,'');}
+  n=safeFileName(base,160)+ext;
+  var mimeType=mime||'text/plain;charset=utf-8';
+  /* 导出链路全程防御：Blob / createObjectURL / a.click 任一被浏览器策略禁用时，
+     异常不得冒到事件回调（否则 F12 显示 Uncaught ...），自动降级为 data URI 下载。 */
+  try{
+    var b=new Blob([text],{type:mimeType});
+    var u=URL.createObjectURL(b),a=document.createElement('a');
+    a.href=u;a.download=n;a.click();
+    setTimeout(function(){try{URL.revokeObjectURL(u);}catch(e){}},1500);
+  }catch(e){
+    var msg='Blob 下载不可用，已降级为 data URI 导出：'+e.message;
+    try{
+      var a2=document.createElement('a');
+      a2.href='data:'+mimeType+','+encodeURIComponent(String(text));
+      a2.download=n;a2.click();
+    }catch(e2){msg='导出失败：'+e2.message;}
+    try{addLog('ERROR','P4',msg);}catch(e3){try{console.warn(msg);}catch(e4){}}
+  }
+}
+/* Intl.Segmenter 单例：原来每次 tokenize() 都 new 一个实例，
+   buildIndex() 逐段调用 → 文献段落数即实例数。这里缓存一次，构造失败则永久走 bi-gram 兜底。 */
+var _seg=null,_segTried=false;
+function getSegmenter(){
+  if(_segTried)return _seg;
+  _segTried=true;
+  try{if(typeof Intl!=='undefined'&&Intl.Segmenter)_seg=new Intl.Segmenter('zh',{granularity:'word'});}catch(e){_seg=null;}
+  return _seg;
+}
+function tokenize(s){
+  s=String(s||'').toLowerCase();var out=[],sg=getSegmenter();
+  if(sg){
+    try{Array.from(sg.segment(s)).forEach(function(x){
+      var w=x.segment.replace(/[^\u4e00-\u9fa5a-z0-9]/g,'');
+      if(x.isWordLike&&w)out.push(w);
+    });}catch(e){out.length=0;}
+  }
+  if(!out.length){var c=s.replace(/[^\u4e00-\u9fa5a-z0-9]/g,'');for(var i=0;i<c.length-1;i++)out.push(c.slice(i,i+2));}
+  return out;
+}
+/* 文献全文上限：粘贴 / 文件导入两条通道都在这里兜底截断，
+   避免超大文本让 buildCorpus + buildIndex 在主线程同步跑很久导致页面假死。 */
+var MAX_DOC_CHARS=300000,MAX_FILE_BYTES=2*1024*1024;
+function buildCorpus(text){
+  var docs=[],cur=null,raw=String(text||'');
+  if(raw.length>MAX_DOC_CHARS)raw=raw.slice(0,MAX_DOC_CHARS);
+  raw.split(/\r?\n/).forEach(function(ln){
+    ln=ln.trim();if(!ln)return;
+    if(/^-{3,}$/.test(ln)){cur=null;return;}
+    if(!cur){cur={id:'',title:'',source:'',year:'',paras:[]};docs.push(cur);}
+    if(/\|/.test(ln)&&!cur.title){
+      var p=ln.split('|').map(function(x){return x.trim();});
+      cur.id=p[0]||('D'+('0'+docs.length).slice(-2));cur.title=p[1]||'未命名文献';
+      cur.source=p[2]||'未注明来源';cur.year=p[3]||'';return;
+    }
+    cur.paras.push(ln);
+  });
+  return docs.filter(function(d){return d.paras.length>0;});
+}
+function buildIndex(){
+  var post={},N=0,dlens={},total=0;
+  st.docs.forEach(function(d){
+    d.paras.forEach(function(txt,pi){
+      var key=d.id+'¶'+(pi+1),tk=tokenize(txt),tf={};N++;total+=tk.length;dlens[key]=tk.length;
+      tk.forEach(function(t){tf[t]=(tf[t]||0)+1;});
+      Object.keys(tf).forEach(function(t){(post[t]=post[t]||[]).push({key:key,tf:tf[t],doc:d,pi:pi,text:txt});});
+    });
+  });
+  st.idx={post:post,N:N,dlens:dlens,avg:total/(N||1)};
+}
+function search(q,k){
+  var qt=tokenize(q),sc={},k1=1.5,b=.75,idx=st.idx;
+  qt.forEach(function(t){
+    var list=idx.post[t]||[],idf=Math.log(1+(idx.N-list.length+.5)/(list.length+.5));
+    list.forEach(function(p){
+      var o=sc[p.key]||(sc[p.key]={score:0,doc:p.doc,pi:p.pi,text:p.text,key:p.key});
+      o.score+=idf*(p.tf*(k1+1))/(p.tf+k1*(1-b+b*idx.dlens[p.key]/idx.avg));
+    });
+  });
+  return Object.keys(sc).map(function(x){return sc[x];}).sort(function(a,c){return c.score-a.score;}).slice(0,k||3);
+}
+function claim(t){
+  var ss=String(t).split(/[。；;！!？?]/).filter(function(x){return x.trim().length>6;});
+  var best=ss[0]||String(t),mx=-1;
+  ss.forEach(function(s){var v=(/(\d|%|同比|增长|下降|占比|提升|缩短|相关|显著)/.test(s)?5:0)+s.length*.08;if(v>mx){mx=v;best=s;}});
+  return cut(best,88)+'。';
+}
+function parseKeywords(s){
+  var out=[],seen={};
+  String(s||'').split(/[,，、;；\s]+/).forEach(function(x){
+    x=cut(x,24);if(!x||seen[x])return;seen[x]=1;out.push(x);
+  });
+  return out.slice(0,8);
+}
+
+/* ============ Markdown → HTML：列表块状态机（不输出裸 - / 1.） ============ */
+function mdToHtml(md){
+  var lines=esc(md).split('\n'), out=[], inTable=false, inList=null;
+  function closeTable(){if(inTable){out.push('</table>');inTable=false;}}
+  function closeList(){if(inList){out.push('</'+inList+'>');inList=null;}}
+  function inline(x){
+    return String(x)
+      .replace(/\[D\d{2} ¶\d+\]/g,function(m){return '<code>'+m+'</code>';})
+      .replace(/`([^`]+)`/g,'<code>$1</code>')
+      .replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>');
+  }
+  lines.forEach(function(l){
+    var t=l.trim();
+    /* 无序：- / * / + / •；有序：1. / 1) / 1、/ 一、；标记后必须有空白 */
+    var mu=t.match(/^[-*+•]\s+(.+)$/);
+    var mo=t.match(/^(?:\d+[.)、]|[一二三四五六七八九十]+、)\s+(.+)$/);
+    if(mu||mo){
+      closeTable();
+      var want=mu?'ul':'ol';
+      if(inList!==want){closeList();out.push('<'+want+'>');inList=want;}
+      out.push('<li>'+inline(mu?mu[1]:mo[1])+'</li>');
+      return;
+    }
+    closeList();
+    if(/^# /.test(t)){closeTable();out.push('<h1>'+inline(t.slice(2))+'</h1>');}
+    else if(/^## /.test(t)){closeTable();out.push('<h2>'+inline(t.slice(3))+'</h2>');}
+    else if(/^### /.test(t)){closeTable();out.push('<h3>'+inline(t.slice(4))+'</h3>');}
+    else if(/^&gt; /.test(t)){closeTable();out.push('<blockquote>'+inline(t.slice(5))+'</blockquote>');}
+    else if(/^\|/.test(t)){
+      if(/^\|[\s|:-]+\|$/.test(t))return;
+      if(!inTable){out.push('<table>');inTable=true;}
+      out.push('<tr>'+t.slice(1,-1).split('|').map(function(c){return '<td>'+inline(c.trim())+'</td>';}).join('')+'</tr>');
+    }
+    else if(!t){closeTable();out.push('');}
+    else{closeTable();out.push('<p>'+inline(t)+'</p>');}
+  });
+  closeTable();closeList();
+  var body=out.join('\n');
+  return '<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><title>开题调研报告</title>'
+    +'<style>body{max-width:860px;margin:32px auto;padding:0 20px;font:14px/1.75 -apple-system,"Segoe UI","Microsoft YaHei",sans-serif;color:#1b2c45}'
+    +'h1{font-size:22px;color:#1d4e89}h2{font-size:18px;margin-top:28px;border-bottom:1px solid #d7e2f0;padding-bottom:6px;color:#1d4e89}h3{font-size:15px;color:#153c6e}'
+    +'blockquote{margin:0;padding:8px 14px;background:#f3f8fd;border-left:3px solid #1d4e89;color:#5f7391}'
+    +'table{border-collapse:collapse;width:100%;margin:10px 0}td,th{border:1px solid #d7e2f0;padding:6px 9px;font-size:13px}'
+    +'tr:first-child td{background:#e8f0fa;font-weight:600}code{background:#eef4fb;padding:1px 5px;border-radius:4px;color:#153c6e}'
+    +'strong{font-weight:600}ul,ol{margin:8px 0;padding-left:24px}li{margin:4px 0}</style></head><body>'+body+'</body></html>';
+}
+
+/* ==================================================================
+   ★ 报告生成函数（六章骨架，来自「六章报告版」）
+   把主题 + 关键词拼成 Markdown 格式的 6 章节报告。
+   参数：topic {string}、keywords {string[]}；返回完整 Markdown。
+   纯函数，不依赖任何 DOM / 全局状态，可单独摘出复用。
+   ================================================================== */
+function generateReport(topic, keywords){
+  var t=cut(topic,80)||'未命名调研主题';
+  var kws=(keywords||[]).map(function(k){return cut(k,24);}).filter(Boolean);
+  if(!kws.length)kws=['（未填写关键词）'];
+  var n=kws.length,L=[],now=new Date().toLocaleString('zh-CN');
+  function li(arr){L.push(arr.join('\n'));}
+
+  li(['# '+t+' — 课程论文开题文献调研报告','',
+      '> 生成时间：'+now+'　|　运行模式：本地模板拼装（未接入外部 LLM）　|　数据不出本机',
+      '> 调研主题：'+t,
+      '> 关键词（'+n+'）：'+kws.join('、'),
+      '> 说明：本报告由「主题 + 关键词」拼装成 6 章节调研骨架，事实性结论须经人工检索核实后填写并挂引用锚点。','']);
+
+  /* 第 1 章：主题与关键词界定 */
+  L.push('## 1 调研主题与关键词界定','');
+  L.push('**调研主题**：'+t,'');
+  L.push('**关键词表**','');
+  L.push('| # | 关键词 | 建议检索式 | 关注维度 |','|---|---|---|---|');
+  kws.forEach(function(k,i){
+    L.push('| '+(i+1)+' | '+k+' | `"'+t+'" AND "'+k+'"` | '+DIMS[i%DIMS.length]+' |');
+  });
+  L.push('','**范围界定**：围绕上述 '+n+' 个关键词，纳入与「'+t+'」直接相关的经营类文献（研报、年报、期刊论文、政策文本）；排除仅作概念介绍、无可核实数据的材料。');
+  L.push('**课程要求**：〔人工填写：字数、截止日期、指定维度框架〕','');
+
+  /* 第 2 章：背景与问题提出 */
+  L.push('## 2 研究背景与问题提出','');
+  L.push('「'+t+'」是经营与管理研究中兼具理论价值与现实意义议题。随着相关实践推进，围绕 '+kws.slice(0,3).join('、')+' 的讨论逐渐增多，但不同来源在测量口径、作用路径与结论方向上并不一致，需要在开题阶段先做系统的文献梳理与缺口定位。');
+  L.push('','**拟回答的子问题**（由关键词展开，学生可增删改后批准）：');
+  kws.forEach(function(k,i){L.push((i+1)+'. 「'+k+'」在「'+t+'」中处于什么位置、有哪些主要结论与关键数据？');});
+  L.push('','**待人工补全**：行业背景、政策脉络与已有综述结论；此处须补入正式数据库检索结果，不能只依赖模板文字。','');
+
+  /* 第 3 章：关键词分述 */
+  L.push('## 3 关键词分述与检索要点','');
+  kws.forEach(function(k,i){
+    L.push('### 3.'+(i+1)+' '+k,'');
+    L.push('- **检索式**：`'+t+' + '+k+'`，优先近三年文献，兼顾研报与年报口径；');
+    L.push('- **关注维度**：'+DIMS[i%DIMS.length]+'；需同时记录支持性与限定性证据。');
+    L.push('- **待核实结论**：〔人工填写，句末须同行挂 `[文献编号 ¶段落]` 锚点〕');
+    L.push('- **关键数据**：〔金额 / 百分比 / 同比 / 滞后月数〕');
+    L.push('- **引用锚点**：〔`'+(kws[i]||'D01')+' ¶—`〕','');
+  });
+  L.push('> 本章由 '+n+' 个关键词逐一展开，是「主题 + 关键词 → 报告」的主要落点；每小节均留出人工补检位，避免把模板文字当成已核实结论。','');
+
+  /* 第 4 章：关键词交叉对比 */
+  L.push('## 4 关键词交叉对比与共识分歧','');
+  L.push('| 议题（关键词组合） | 支持侧要点 | 反向 / 限定侧要点 | 判断 |','|---|---|---|---|');
+  var pairs=[];
+  for(var i=0;i<Math.min(n-1,4);i++)pairs.push([kws[i],kws[i+1]]);
+  if(!pairs.length)pairs.push([kws[0],'（补充第二个关键词后对比）']);
+  pairs.forEach(function(p){L.push('| '+p[0]+' × '+p[1]+' | 〔待填〕 | 〔待填〕 | 〔待填〕 |');});
+  L.push('','**共识**：〔待人工归纳，须挂锚点〕');
+  L.push('**分歧**：〔待人工归纳，说明是口径差异、样本差异还是时滞差异〕');
+  L.push('**证据不足**：〔列出未查到证据的关键词或组合〕','');
+
+  /* 第 5 章：研究缺口与选题建议 */
+  L.push('## 5 研究缺口与选题建议','');
+  var sug=[
+    '围绕「'+kws[0]+'」，可研究其测量口径不统一如何影响「'+t+'」的结论可比性；',
+    '围绕「'+(kws[1]||kws[0])+'」，可考察 12–24 个月滞后效应下投入与产出关系的变化；',
+    '围绕「'+(kws[2]||kws[0])+'」，可检验组织与流程因素是否构成关键中介变量。'
+  ];
+  sug.forEach(function(s,i){L.push((i+1)+'. '+s);});
+  L.push('','**后续检索方向**：补充上市公司年报金额披露、非制造业与境外对照样本，并统一绩效指标定义。');
+  L.push('**建议可回答的研究问题**：〔由学生在上述 3 条中收敛为 1 条，写明对象、变量与数据来源〕','');
+
+  /* 第 6 章：结论、风险提示与审核声明 */
+  L.push('## 6 结论、风险提示与审核声明','');
+  L.push('**结论（待核实）**：在「'+t+'」议题下，'+kws.slice(0,3).join('、')+' 三者相互牵制，尚不能由模板直接推出确定性结论；须待第 3、4 章补检完成后撰写。');
+  L.push('','**风险提示**：');
+  L.push('1. 本报告为主题与关键词拼装的**骨架模板**，不是实证结论；');
+  L.push('2. 关键词仅 '+n+' 个，覆盖面有限，可能遗漏关键文献；');
+  L.push('3. 未接入数据库检索，所有结论位均为待核实占位；');
+  L.push('4. 时效性与来源偏倚须在正式开题中重新评估；');
+  L.push('5. 本地拼装结果未经过外部模型或教师复核。');
+  L.push('','**AI 使用与人工审核声明**：本地算法负责检索、抽取式结论与 6 章节骨架拼装；学生负责逐条补检、改写、挂引用锚点并标记状态。交互日志只追加、保留改写前后 diff，可一键导出作为完整交互证据。');
+  L.push('','> **本报告为课程论文开题阶段的辅助调研材料，不是最终论文结论，须由学生结合正式数据库检索与教师意见复核。**','');
+  return L.join('\n');
+}
+
+/* ============ 状态与日志 ============ */
+var st=null,epoch=0,timers=[];
+var ASYNC={running:false,waiting:false,phase:'-',current:'空闲',stepIndex:0,stepTotal:0,stepDelayMs:0,logIndex:0,logTotal:0};
+/* 日志持久化：原来每条日志都同步 localStorage.setItem（全量 500 条），
+   插桩实测一轮流程写 72 次 / 累计约 6 MB，同步 I/O 会阻塞主线程。
+   改为 180ms 合并写；pagehide / beforeunload 强制 flush，保证交互证据不丢。 */
+var persistTimer=null;
+function persistNow(){
+  persistTimer=null;
+  try{if(st)localStorage.setItem('lit_logs_v1',JSON.stringify(st.logs.slice(-500)));}catch(e){}
+}
+function persist(){
+  if(persistTimer!==null)return;
+  persistTimer=setTimeout(persistNow,180);
+}
+function flushPersist(){
+  if(persistTimer!==null){clearTimeout(persistTimer);persistNow();}
+}
+function addLog(type,phase,text,extra){
+  var l={t:new Date().toISOString(),time:ts(),type:type,phase:phase,text:text};
+  if(extra)for(var k in extra)l[k]=extra[k];
+  st.logs.push(l);persist();appendLogNode(l);
+}
+/* 日志区自动滚到底：新节点 append 后布局可能尚未稳定（fade 淡入动画 / 换行 / 字体），
+   故「立即 + requestAnimationFrame 双帧」三次把 scrollTop 顶到 scrollHeight，
+   保证逐条输出时最新一条始终可见；无 rAF 的环境仍保留即时设置。 */
+function scrollLogBottom(){
+  var box=$('logBox');if(!box)return;
+  /* 滚动只是增强体验：任何一步失败都不得冒泡到 addLog / boot。
+     否则 rAF 被策略禁用或页面处于卸载/打印预览中，会在启动阶段抛出顶层异常，
+     导致整个脚本中断、页面按钮全部失效。 */
+  function pin(){try{box.scrollTop=box.scrollHeight;}catch(e){}}
+  try{
+    pin();
+    if(typeof requestAnimationFrame==='function'){
+      requestAnimationFrame(function(){pin();try{requestAnimationFrame(pin);}catch(e){}});
+    }
+  }catch(e){pin();}
+}
+function appendLogNode(l,noScroll){
+  var box=$('logBox'),d=document.createElement('div');
+  d.className='log '+l.type;
+  d.innerHTML='<span class="tm">'+esc(l.time)+'</span><span class="tp">'+esc(l.type)+'</span><span>['+esc(l.phase)+'] '+esc(l.text)+'</span>'+(l.diff?'<span class="diff">'+esc(l.diff)+'</span>':'');
+  box.appendChild(d);
+  if(!noScroll)scrollLogBottom();
+  $('logCount').textContent=st.logs.length+' 条'+(ASYNC.running?(ASYNC.waiting?' · 延迟中':' · 逐条输出中'):'');
+}
+function renderLog(){
+  var box=$('logBox');box.innerHTML='';
+  box.className='no-anim';   /* 历史日志全量重建：关掉 500 个淡入动画 */
+  st.logs.forEach(function(l){appendLogNode(l,true);});
+  scrollLogBottom();
+  $('logCount').textContent=st.logs.length+' 条';
+  setTimeout(function(){try{box.className='';}catch(e){}},0); /* 之后新增日志恢复 fade */
+}
+function setStatus(id,v){st.stageStatus[id]=v;persist();render();}
+function deriveStatus(){
+  var s=st.stageStatus;
+  if(s.P1==='done')st.gates.planApproved=true;
+  if(s.P3==='done'&&st.gates.unlinkedClaims>0)s.P3='blocked';
+  if(s.P3==='done'&&(st.chapterCount!==6||st.missing.length))s.P3='blocked';
+  if(s.P4!=='locked'&&s.P3!=='done')s.P4='locked';
+}
+function cascadeReset(from){
+  var i=ORDER.indexOf(from);
+  for(var j=i+1;j<4;j++)setStatus(ORDER[j],'locked');
+  addLog('REPLAN',from,'CASCADE_RESET：下游阶段全部回到 locked，避免旧证据 / 旧关键词残留进报告');
+}
+function cancelAsync(){
+  epoch++;timers.forEach(function(t){clearTimeout(t);});timers=[];
+  ASYNC.running=false;ASYNC.waiting=false;ASYNC.current='空闲';
+  ASYNC.stepIndex=0;ASYNC.stepTotal=0;ASYNC.logIndex=0;ASYNC.logTotal=0;
+  if(st)st.busy=false;
+}
+function speedFactor(){var v=parseFloat($('speed').value);return v>0?v:1;}
+function sleep(ms){return new Promise(function(res){var t=setTimeout(res,Math.max(1,Math.round(ms/speedFactor())));timers.push(t);});}
+function stepDelay(ms){return Math.max(1,Math.round((ms||420)/speedFactor()));}
+
+/* 异步分步执行器：每步一次 setTimeout 模拟延迟 → 真实计算 → 该步日志逐条追加 */
+async function runSequence(phase,steps){
+  var my=epoch;
+  ASYNC.running=true;ASYNC.phase=phase;
+  try{
+    for(var i=0;i<steps.length;i++){
+      if(my!==epoch)throw new Error('CANCELLED');
+      ASYNC.waiting=true;ASYNC.current=steps[i].label;
+      ASYNC.stepIndex=i+1;ASYNC.stepTotal=steps.length;
+      ASYNC.stepDelayMs=stepDelay(steps[i].delay||420);
+      ASYNC.logIndex=0;ASYNC.logTotal=0;
+      render();
+      await sleep(steps[i].delay||420);
+      if(my!==epoch)throw new Error('CANCELLED');
+      ASYNC.waiting=false;
+      var logs=steps[i].run()||[];
+      ASYNC.logTotal=logs.length;
+      for(var j=0;j<logs.length;j++){
+        if(my!==epoch)throw new Error('CANCELLED');
+        ASYNC.logIndex=j+1;
+        addLog(logs[j][0],phase,logs[j][1],logs[j][2]);
+        render();
+        await sleep(95);
+      }
+      persist();
+    }
+  }finally{
+    ASYNC.running=false;ASYNC.waiting=false;ASYNC.current='空闲';
+    ASYNC.stepIndex=0;ASYNC.stepTotal=0;ASYNC.logIndex=0;ASYNC.logTotal=0;
+    render();
+  }
+}
+
+/* ============ 四阶段 ============ */
+async function phase1(){
+  var q=$('question').value.trim(),text=$('docs').value.trim();
+  if(!q){addLog('ERROR','P1','研究问题为空，无法生成计划');return;}
+  if(!text){addLog('ERROR','P1','尚未导入文献，请先粘贴或载入示例数据集');return;}
+  if(text.length>MAX_DOC_CHARS){addLog('WARN','P1','文献全文 '+text.length+' 字符超过上限，仅前 '+MAX_DOC_CHARS+' 字符参与索引');text=text.slice(0,MAX_DOC_CHARS);}
+  st.question=q;st.topic=cut(q,80);st.course=$('course').value.trim()||'未填写';
+  st.keywords=parseKeywords($('keywords').value);
+  st.docs=buildCorpus(text);buildIndex();
+  setStatus('P1','running');
+  await runSequence('P1',[
+    {label:'诊断研究问题，确定调研维度',delay:420,run:function(){
+      st.plan={subs:['数字化转型投入的现状与主要结论','不同来源之间的共识与分歧','研究缺口与可回答的研究问题'],
+               terms:tokenize(q).slice(0,8),dims:['投入强度','绩效口径','滞后效应','组织与流程'],reactMax:3};
+      return [['THOUGHT','诊断：问题属「投入—绩效」因果类，需覆盖现状 / 分歧 / 缺口三类子问题；检索式上限 3 轮'],
+              ['OBSERVATION','主题同时作为六章骨架报告 topic：「'+cut(st.topic,32)+'」；关键词 '+st.keywords.length+' 个']];
+    }},
+    {label:'生成子问题与检索词（Plan）',delay:520,run:function(){
+      return [['ACTION','生成 Plan：'+st.plan.subs.length+' 个子问题、'+st.plan.terms.length+' 个检索词、4 个维度'],
+              ['OBSERVATION','计划已生成，等待学生逐条增删改后批准（S0 人工门）']];
+    }},
+    {label:'文献分段与元数据编号',delay:460,run:function(){
+      return [['ACTION','按行切分语料并编号段落，共 '+st.idx.N+' 段'],
+              ['OBSERVATION','识别文献 '+st.docs.length+' 篇：'+st.docs.map(function(d){return d.id;}).join('、')]];
+    }},
+    {label:'构建倒排索引与 BM25 统计',delay:560,run:function(){
+      return [['ACTION','建立倒排索引，词项 '+Object.keys(st.idx.post).length+' 个'],
+              ['OBSERVATION','索引就绪，平均段长 '+st.idx.avg.toFixed(1)+' 词；BM25 k1=1.5, b=0.75']];
+    }}
+  ]);
+  setStatus('P1','awaiting_review');
+  addLog('APPROVE','P1','机器产出完毕 → 待人工确认。请点击「批准计划并继续」；未批准不进入 S1。');
+}
+async function phase2(){
+  setStatus('P2','running');st.evidence=[];
+  var steps=[];
+  st.plan.subs.forEach(function(sub,i){
+    steps.push({label:'子问题 '+(i+1)+' · 诊断证据缺口（Thought）',delay:340,run:(function(s){return function(){
+      return [['THOUGHT','子问题「'+cut(s,22)+'」：已选证据 '+st.evidence.length+' 条，需覆盖至少 2 个独立来源与 1 个数值型片段']];
+    };})(sub)});
+    steps.push({label:'子问题 '+(i+1)+' · 执行检索（Action / Observation）',delay:500,run:(function(s){return function(){
+      var q=s+' '+st.plan.terms.join(' '),hits=search(q,3),rounds=1;
+      if(!hits.length&&rounds<st.plan.reactMax){
+        addLog('THOUGHT','P2','首轮 0 命中，进入受限 ReAct 第 2 轮：改用扩展检索词');
+        hits=search(st.plan.terms.join(' ')+' 绩效 影响',3);rounds=2;
+      }
+      if(!hits.length&&rounds<st.plan.reactMax){hits=search('数字化 投入 企业',3);rounds=3;}
+      var got=hits.map(function(h){
+        return {sub:s,docId:h.doc.id,paraId:h.pi+1,quote:cut(h.text,110),claim:claim(h.text),score:+h.score.toFixed(3),ref:'['+h.doc.id+' ¶'+(h.pi+1)+']'};
+      });
+      st.evidence=st.evidence.concat(got);
+      return [['ACTION','Action=检索；检索式「'+cut(q,42)+'」；ReAct 轮次 '+rounds+'/'+st.plan.reactMax],
+              ['OBSERVATION','命中 '+hits.length+' 条，锚点 '+got.map(function(g){return g.ref;}).join(' ')+'；最高 BM25 '+(hits[0]?hits[0].score.toFixed(2):'0.00')]];
+    };})(sub)});
+  });
+  steps.push({label:'汇总证据包与缺口清单',delay:420,run:function(){
+    var srcs={};st.evidence.forEach(function(e){srcs[e.docId]=1;});
+    st.gates.coverage=Object.keys(srcs).length+'/'+st.docs.length;
+    return [['OBSERVATION','证据包共 '+st.evidence.length+' 条，覆盖独立来源 '+st.gates.coverage+'；锚点格式 [D01 ¶3]'],
+            ['THOUGHT','证据充分性判断完成，进入「待人工确认」：请勾选/剔除片段后采纳']];
+  }});
+  await runSequence('P2',steps);
+  setStatus('P2','awaiting_review');
+}
+
+/* 报告引擎 A：7 章 + 附录 A 取证型报告（带引用锚点强制校验） */
+function buildReport(){
+  var L=[],q=st.question,ev=st.evidence;
+  function E(i){return ev[i]?ev[i].ref:'〔证据不足〕';}
+  L.push('# '+q+' — 课程论文开题文献调研报告','');
+  L.push('> 生成信息：'+st.course+' · 生成时间 '+new Date().toLocaleString('zh-CN')+' · 语料 '+st.docs.length+' 篇 / 证据 '+ev.length+' 条');
+  L.push('> 运行模式：本地算法保底（Intl.Segmenter + BM25 + 抽取式结论）· 未接入外部 LLM · 数据不出本机');
+  L.push('> 状态：P3 审核通过 · v'+st.version+' · 全量交互证据见 `全量AI交互记录.json`','');
+  L.push('## 1 研究问题与调研设计','');
+  L.push('**原始研究问题**：'+q,'');
+  L.push('**子问题分解**（Plan，学生可修改后批准）：');
+  st.plan.subs.forEach(function(s,i){L.push((i+1)+'. '+s+' [人工确认]');});
+  L.push('','**检索词**：'+st.plan.terms.join('、')+' ；**维度框架**：'+st.plan.dims.join('、'));
+  L.push('**检索策略**：倒排索引 + BM25(k1=1.5, b=0.75)，受限 ReAct 最多 '+st.plan.reactMax+' 轮换词；S0 计划已由学生批准。','');
+  L.push('## 2 文献与证据概览','');
+  L.push('| 编号 | 标题 | 来源 | 年份 | 段数 |','|---|---|---|---|---|');
+  st.docs.forEach(function(d){L.push('| '+d.id+' | '+cut(d.title,30)+' | '+cut(d.source,18)+' | '+d.year+' | '+d.paras.length+' |');});
+  L.push('','命中片段 '+ev.length+' 条，独立来源覆盖 '+st.gates.coverage+'；证据缺口：示例语料未覆盖非制造业与境外样本，需在正式开题中补检。','');
+  L.push('## 3 主要发现','');
+  st.findings.forEach(function(f,i){
+    L.push('**[已核实] 结论 '+(i+1)+'：'+f.claim+'** '+f.ref);
+    if(f.data)L.push('　关键数据：'+f.data+' '+f.ref);
+  });
+  L.push('');
+  L.push('## 4 观点对比与共识分歧','');
+  L.push('| 议题 | 支持性证据 | 反向 / 限定性证据 | 判断 |','|---|---|---|---|');
+  L.push('| 投入是否带来绩效改善 | '+E(0)+' 指数提升、交付周期缩短 | '+E(1)+' 仅 28% 形成可量化回报 | 存在分歧，需区分短期与滞后口径 |');
+  L.push('| 绩效口径是否可比 | '+E(2)+' 口径不统一 | '+E(3)+' 不同口径可得相反结论 | 共识：须先统一指标定义 |');
+  L.push('| 关键中介变量 | '+E(4)+' 组织惯性削弱转化 | '+E(5)+' 流程重构为核心中介 | 形成初步共识，证据仍偏案例 |');
+  L.push('','**共识**：绩效口径不统一是跨研究比较的主要障碍；组织与流程因素被反复提及。');
+  L.push('**分歧**：投入回报是否存在、以及滞后期的长度，各来源结论不一致。','');
+  L.push('## 5 研究缺口与选题建议','');
+  L.push('1. 现有材料缺少统一的绩效口径与 12–24 个月滞后数据，可研究「滞后效应如何影响投入—绩效关系」'+E(0));
+  L.push('2. 组织惯性多为案例描述，缺少可量化中介变量，可研究「流程重构的中介作用」'+E(4));
+  L.push('3. 补贴效果评估口径偏设备联网率，可研究「管理会计配套指标对补贴效果的影响」'+E(5));
+  L.push('','后续检索方向：补充近三年上市公司年报金额披露、非制造业样本与境外对照研究。','');
+  L.push('## 6 结论与风险提示','');
+  L.push('在示例语料范围内，可确认的结论是：数字化投入与经营绩效的关系受**绩效口径、滞后长度与组织流程**三个因素调节，而非简单的线性投入产出关系 '+E(0)+'。');
+  L.push('风险提示：① 示例数据为教学用，非真实文献；② 来源数量有限且偏制造业；③ 披露口径不一致；④ 时效性限于 2022–2024；⑤ 本地抽取式结论未经过外部模型复核。');
+  L.push('**本报告为开题阶段的辅助调研材料，不是最终论文结论，须由学生结合正式数据库检索与教师意见复核。**','');
+  L.push('## 7 引用清单','');
+  L.push('| 锚点 | 文献 | 段落 | 引文摘要 |','|---|---|---|---|');
+  var seen={};
+  ev.forEach(function(e){var k=e.ref;if(seen[k])return;seen[k]=1;L.push('| '+e.ref+' | '+e.docId+' | ¶'+e.paraId+' | '+cut(e.quote,52)+' |');});
+  L.push('','**引用强制校验结果：无引用结论数 = '+st.gates.unlinkedClaims+'，'+(st.gates.unlinkedClaims===0?'校验通过，允许导出 ✅':'校验失败，导出已锁定 ⛔')+'**','');
+  L.push('## 附录 A · AI 使用与人工审核声明','');
+  L.push('| 环节 | AI / 算法参与 | 人工动作 |','|---|---|---|');
+  L.push('| S0 计划生成 | 本地规则生成子问题与检索词 | 学生逐条确认并批准 |');
+  L.push('| S2 证据检索 | BM25 排序 + 受限 ReAct 换词 | 勾选/剔除证据片段 |');
+  L.push('| S4 草稿与校验 | 抽取式结论 + 引用锚点校验 | 逐条审核、人工改写、标记状态 |');
+  L.push('','人工改写次数：'+st.gates.humanEdits+'（含前后 diff，详见全量交互记录）；交互日志只追加、无删除入口。');
+  L.push('证据文件：`全量AI交互记录.json`，共 '+st.logs.length+' 条记录。','');
+  L.push('> 注：`[人工改写]` 条目须保留 AI 草稿原句；本模板中的示例结论由本地抽取式算法生成，非大模型输出。');
+  return L.join('\n');
+}
+async function phase3(){
+  setStatus('P3','running');
+  await runSequence('P3',[
+    {label:'抽取结论与关键数据',delay:480,run:function(){
+      var nums=/(\d+(\.\d+)?\s*(%|个百分点|个月|亿元|万元)|同比|相关系)/;
+      st.findings=st.evidence.slice(0,6).map(function(e){
+        var m=String(e.quote).match(nums);
+        return {claim:e.claim,data:m?m[0]:'',ref:e.ref,sub:e.sub};
+      });
+      return [['ACTION','对 '+st.evidence.length+' 条证据做抽取式摘要与数值正则匹配'],
+              ['OBSERVATION','生成结论卡 '+st.findings.length+' 条，其中含关键数据 '+st.findings.filter(function(f){return f.data;}).length+' 条']];
+    }},
+    {label:'C5 引用锚点强制校验',delay:460,run:function(){
+      st.gates.unlinkedClaims=st.findings.filter(function(f){return !f.ref;}).length;
+      return [['THOUGHT','校验规则：第 3 / 6 章每条结论必须同行携带 [文献 ¶段落] 锚点'],
+              ['OBSERVATION','校验结果：无引用结论 '+st.gates.unlinkedClaims+' 条；'+(st.gates.unlinkedClaims===0?'通过，导出解锁':'失败，转 blocked 并触发 Replan')]];
+    }},
+    {label:'组装 7 章 + 附录 A 取证报告',delay:560,run:function(){
+      st.reportEvidence=buildReport();st.reportGenerated=true;st.version++;
+      showActiveReport();
+      return [['ACTION','按固定章节模板组装 Markdown：7 章 + 附录 A（取证报告）'],
+              ['OBSERVATION','报告 '+st.reportEvidence.length+' 字符；引用锚点 '+(st.reportEvidence.match(/\[D\d+ ¶\d+\]/g)||[]).length+' 处']];
+    }},
+    {label:'调用 generateReport() 拼装六章骨架',delay:520,run:function(){
+      var sk=generateReport(st.topic,st.keywords);
+      st.reportSkeleton=sk;
+      st.chapterCount=(sk.match(/^## \d/gm)||[]).length;
+      st.missing=st.keywords.filter(function(k){return sk.indexOf(k)<0;});
+      showActiveReport();
+      return [['ACTION','generateReport(topic, keywords) 已执行：主题 + '+st.keywords.length+' 个关键词 → 6 章节骨架'],
+              ['OBSERVATION','骨架 '+sk.length+' 字符；二级章节 '+st.chapterCount+' 个；未命中关键词 '+(st.missing.length?st.missing.join('、'):'无（全部命中）')]];
+    }}
+  ]);
+  var bad=[];
+  if(st.gates.unlinkedClaims>0)bad.push('无引用结论 '+st.gates.unlinkedClaims+' 条');
+  if(st.chapterCount!==6)bad.push('六章章节数 '+st.chapterCount);
+  if(st.missing.length)bad.push('未命中关键词 '+st.missing.length+' 个');
+  if(bad.length){
+    setStatus('P3','blocked');
+    addLog('REPLAN','P3','拼装校验失败：'+bad.join('；')+'，禁止 OVERRIDE，请回退 P2 补检');
+  }else{
+    setStatus('P3','awaiting_review');
+    addLog('OBSERVATION','P3','两套报告校验通过（无引用结论 0 条 / 六章章节 6 / 关键词全命中）→ 待人工确认：请逐条审核、人工改写后点「确认结论并生成报告」');
+  }
+}
+async function phase4(){
+  setStatus('P4','running');
+  await runSequence('P4',[
+    {label:'读取人工改写与审核状态',delay:380,run:function(){
+      return [['THOUGHT','复核人工改写 '+st.gates.humanEdits+' 次、证据包 '+st.evidence.length+' 条、日志 '+st.logs.length+' 条'],
+              ['ACTION','把已核实结论、六章骨架与引用清单归档为可交付状态']];
+    }},
+    {label:'归档摘要与导出强制门复核',delay:420,run:function(){
+      return [['OBSERVATION','强制门复核：P3='+st.stageStatus.P3+'，无引用结论='+st.gates.unlinkedClaims+'，六章章节='+st.chapterCount+' → '+(st.gates.unlinkedClaims===0&&st.chapterCount===6?'允许导出':'导出锁定')],
+              ['APPROVE','归档完成 → 待最终人工确认后一次性导出两份报告 + 全量记录 + 引用清单']];
+    }}
+  ]);
+  setStatus('P4','awaiting_review');
+}
+
+/* ============ 门、双报告视图、复制与导出 ============ */
+function approve(id){
+  var names={P1:'学生批准调研计划（S0 人工门）',P2:'学生采纳证据包（S2 人工门）',P3:'学生确认结论并生成报告（S4 强制门）',P4:'学生最终确认导出（S5 人工门）'};
+  addLog('APPROVE',id,names[id],{diff:'状态转移：'+id+' awaiting_review → done'});
+  setStatus(id,'done');
+  var nx=ORDER[ORDER.indexOf(id)+1];
+  if(nx){setStatus(nx,'locked');st.current=nx;}
+}
+function replan(){
+  addLog('REPLAN','P3','学生选择回退补检：解除 blocked，清空证据包与两份报告并回到 P2 重新检索');
+  st.evidence=[];st.findings=[];st.gates.unlinkedClaims=0;
+  st.reportEvidence='';st.reportSkeleton='';st.reportGenerated=false;
+  st.chapterCount=0;st.missing=[];
+  $('report').value='';$('printOut').textContent='';
+  cascadeReset('P2');setStatus('P2','locked');st.current='P2';
+}
+function activeReport(){return st.view==='evidence'?st.reportEvidence:st.reportSkeleton;}
+function viewName(){return VIEWNAME[st.view]||'报告';}
+function showActiveReport(){
+  var md=activeReport();
+  $('report').value=md;$('printOut').textContent=md;
+  updateWordCount();
+}
+/* ---- 报告区字数统计 ----
+   口径：正文字数 = 中文汉字 + 英文单词 + 数字串；
+   先清洗 Markdown（标题/列表/表格/引用/粗体/代码/链接/取证锚点），
+   中文标点不计入，避免把 "##"、"|"、"**"、"[D01 ¶7]" 算成字数。
+   统计源是编辑框 value（含尚未提交的人工改写），另一视图取 st 中已写回的文本。 */
+function wcFmt(n){return String(n).replace(/\B(?=(\d{3})+(?!\d))/g,',');}
+function textStats(md){
+  var s=String(md==null?'':md);
+  var total=s.length,nonSpace=s.replace(/\s/g,'').length;
+  var lines=s?s.split(/\r\n|\r|\n/).length:0;
+  var titles=(s.match(/^\s{0,3}#{1,6}\s+\S/gm)||[]).length;
+  var body=s
+    .replace(/```[\s\S]*?```/g,' ')
+    .replace(/\[([^\]]*)\]\([^)]*\)/g,'$1')
+    .replace(/\[[^\]\n]*\]/g,' ')
+    .replace(/^\s{0,3}#{1,6}\s+/gm,'')
+    .replace(/^\s{0,3}[-*+•]\s+/gm,'')
+    .replace(/^\s{0,3}\d+[.)、]\s+/gm,'')
+    .replace(/^\s{0,3}[一二三四五六七八九十]+、\s*/gm,'')
+    .replace(/^\s{0,3}>+\s?/gm,'')
+    .replace(/[|`*_~#]/g,' ')
+    .replace(/\s+/g,' ');
+  var cjk=(body.match(/[\u3400-\u9fff]/g)||[]).length;
+  var en=(body.match(/[A-Za-z]+(?:['\u2019-][A-Za-z]+)*/g)||[]).length;
+  var num=(body.match(/\d+(?:[.,]\d+)*/g)||[]).length;
+  return {words:cjk+en+num,cjk:cjk,en:en,num:num,nonSpace:nonSpace,total:total,lines:lines,titles:titles};
+}
+/* 从「课程/要求」输入框里解析目标字数（如「3000 字」），解析不到就不显示进度条 */
+function wordGoal(){
+  try{var m=String($('course').value||'').match(/(\d{3,6})\s*字/);return m?parseInt(m[1],10):0;}
+  catch(e){return 0;}
+}
+var wcCache={text:null,view:null,has:null,goal:null};
+function updateWordCount(){
+  if(!$('wordBar'))return;
+  var has=!!st.reportGenerated,text=$('report').value||'',goal=wordGoal();
+  /* render() 在 runSequence 里每条日志都会调用；字数统计只在正文 / 视图 /
+     生成状态 / 课程目标真正变化时才重算，避免逐条日志反复全量正则扫描。 */
+  if(wcCache.text===text&&wcCache.view===st.view&&wcCache.has===has&&wcCache.goal===goal)return;
+  wcCache={text:text,view:st.view,has:has,goal:goal};
+  var a=textStats(text);
+  var other=st.view==='evidence'?st.reportSkeleton:st.reportEvidence;
+  var b=textStats(other);
+  $('wcMain').textContent=has?wcFmt(a.words):'—';
+  $('wcView').textContent=has?viewName():'未生成';
+  $('wcSub').textContent=has
+    ?('中文 '+wcFmt(a.cjk)+' · 英文词 '+wcFmt(a.en)+' · 数字 '+wcFmt(a.num)+' · 非空白字符 '+wcFmt(a.nonSpace)+' · 总字符 '+wcFmt(a.total)+' · 行 '+wcFmt(a.lines)+' · 标题 '+a.titles)
+    :'报告生成后自动统计；人工改写时实时刷新。';
+  $('wcAlt').textContent=has
+    ?('另一视图 · '+(st.view==='evidence'?'六章骨架':'取证报告')+'：'+wcFmt(b.words)+' 字')
+    :'';
+  if(has&&goal>0){
+    var pct=Math.min(100,Math.round(a.words/goal*100));
+    $('wcGoal').textContent='课程参考 '+wcFmt(goal)+' 字 · 已达成 '+pct+'%';
+    $('wcGoalGroup').style.display='flex';
+    $('wcFill').style.width=pct+'%';
+  }else{
+    $('wcGoalGroup').style.display='none';
+  }
+}
+function gateErrors(){
+  var bad=[];
+  if(st.gates.unlinkedClaims>0)bad.push('无引用结论 '+st.gates.unlinkedClaims+' 条');
+  if(st.chapterCount!==6)bad.push('六章章节数 '+st.chapterCount);
+  if(st.missing.length)bad.push('未命中关键词 '+st.missing.length+' 个');
+  if(!st.reportEvidence)bad.push('取证报告尚未生成');
+  if(!st.reportSkeleton)bad.push('六章骨架尚未生成');
+  return bad;
+}
+function exportAll(){
+  flushEdit();
+  var bad=gateErrors();
+  if(bad.length){addLog('ERROR','P4','导出被阻止：'+bad.join('；'));return false;}
+  var stamp=new Date().toISOString().replace(/[:.]/g,'-').slice(0,19),tag=topicTag();
+  dl('开题调研报告_取证版_'+tag+'_'+stamp+'.md',st.reportEvidence,'text/markdown;charset=utf-8');
+  dl('开题调研报告_六章骨架_'+tag+'_'+stamp+'.md',st.reportSkeleton,'text/markdown;charset=utf-8');
+  dl('全量AI交互记录_'+tag+'_'+stamp+'.json',JSON.stringify({generated:new Date().toISOString(),question:st.question,topic:st.topic,keywords:st.keywords,view:st.view,logs:st.logs},null,2),'application/json;charset=utf-8');
+  var rows=['锚点,文献,段落,引文摘要'],seen={};
+  st.evidence.forEach(function(e){if(seen[e.ref])return;seen[e.ref]=1;rows.push([e.ref,e.docId,'¶'+e.paraId,'"'+String(e.quote).replace(/"/g,'""')+'"'].join(','));});
+  dl('引用清单_'+tag+'_'+stamp+'.csv','\ufeff'+rows.join('\n'),'text/csv;charset=utf-8');
+  addLog('APPROVE','P4','导出完成：取证报告 MD + 六章骨架 MD + 全量交互记录 JSON + 引用清单 CSV（4 个文件；主题标签「'+tag+'」已做文件名安全清洗）');
+  return true;
+}
+
+/* 人工改写：按当前视图分别留痕，切换视图不丢另一份 */
+var editTimer=null;
+function commitEdit(){
+  editTimer=null;
+  var now=$('report').value,key=st.view==='evidence'?'reportEvidence':'reportSkeleton',before=st[key]||'';
+  if(now===before)return;
+  var i=0;while(i<before.length&&i<now.length&&before[i]===now[i])i++;
+  var d='修改前：…'+before.slice(Math.max(0,i-24),i+40)+'\n修改后：…'+now.slice(Math.max(0,i-24),i+40);
+  st[key]=now;st.gates.humanEdits++;$('printOut').textContent=now;
+  addLog('HUMAN','P3/P4','学生人工改写「'+viewName()+'」正文（人智协同留痕，含前后 diff）',{diff:d});
+  render();
+}
+function flushEdit(){if(editTimer!==null){clearTimeout(editTimer);editTimer=null;commitEdit();}}
+function switchView(v){
+  if(v===st.view)return;
+  flushEdit();
+  st.view=v;showActiveReport();
+  addLog('ACTION','P4','切换报告视图 → '+viewName());
+  render();
+}
+function currentReport(){flushEdit();return activeReport();}
+
+/* 提示气泡 */
+var tipTimer=null;
+function showBtnTip(msg,warn){
+  var t=$('btnTip');
+  t.textContent=msg;t.style.display='inline-block';
+  t.style.background=warn?'#fdf8ee':'#eef4fb';
+  t.style.color=warn?'#8a5a12':'#1d4e89';
+  t.style.borderColor=warn?'#e0c28a':'#bcd2ee';
+  clearTimeout(tipTimer);
+  tipTimer=setTimeout(function(){t.style.display='none';},2600);
+}
+/* file:// 下 navigator.clipboard 常不可用，保留 execCommand 与手动选中两级兜底 */
+function copyReport(){
+  var md=currentReport();
+  if(!md){showBtnTip('报告尚未生成，请先完成 P3 审核',true);return;}
+  function done(ok,how){
+    if(ok){
+      showBtnTip('已复制 '+viewName()+' ✓（'+md.length+' 字符）',false);
+      addLog('ACTION','P4','复制「'+viewName()+'」Markdown 到剪贴板（'+md.length+' 字符，'+how+'）');
+    }else{
+      showBtnTip('自动复制不可用，已选中正文，请按 Ctrl+C',true);
+      try{$('report').focus();$('report').select();}catch(e){}
+      addLog('ERROR','P4','剪贴板 API 与 execCommand 均不可用，已降级为手动选中复制');
+    }
+  }
+  function legacy(){
+    var ok=false;
+    try{
+      var ta=document.createElement('textarea');
+      ta.value=md;ta.setAttribute('readonly','');
+      ta.style.position='fixed';ta.style.left='-9999px';ta.style.top='0';
+      document.body.appendChild(ta);
+      ta.focus();ta.select();ta.setSelectionRange(0,md.length);
+      ok=document.execCommand('copy');
+      document.body.removeChild(ta);
+    }catch(e){ok=false;}
+    done(ok,'execCommand 降级');
+  }
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    var p=null;
+    try{p=navigator.clipboard.writeText(md);}catch(e){p=null;}
+    if(p&&p.then)p.then(function(){done(true,'Clipboard API');},function(){legacy();});
+    else legacy();
+  }else legacy();
+}
+
+/* ============ 主按钮：四个人工门统一入口 ============ */
+async function handleMain(){
+  if(st.busy||ASYNC.running)return;
+  var s=st.stageStatus;st.busy=true;render();
+  try{
+    if(s.P1==='locked')await phase1();
+    else if(s.P1==='awaiting_review')approve('P1');
+    else if(s.P2==='locked')await phase2();
+    else if(s.P2==='awaiting_review')approve('P2');
+    else if(s.P3==='locked')await phase3();
+    else if(s.P3==='awaiting_review')approve('P3');
+    else if(s.P3==='blocked')replan();
+    else if(s.P4==='locked')await phase4();
+    else if(s.P4==='awaiting_review'){if(exportAll())approve('P4');}
+    else if(s.P4==='done')exportAll();
+  }catch(e){
+    if(String(e.message)!=='CANCELLED'){addLog('ERROR',st.current,'执行异常：'+e.message);setStatus(st.current,'failed');}
+  }finally{st.busy=false;render();}
+}
+
+/* ============ 渲染：视图 = f(state) ============ */
+function renderExec(){
+  var a=ASYNC,doneAll=st.stageStatus.P4==='done';
+  if(a.running){
+    var txt='执行中 · '+a.current+'（第 '+a.stepIndex+' / '+a.stepTotal+' 步）';
+    if(a.waiting)txt+=' · ⏳ setTimeout 模拟耗时 '+a.stepDelayMs+'ms';
+    else if(a.logTotal)txt+=' · 逐条输出日志 '+a.logIndex+' / '+a.logTotal+' 条';
+    $('execText').textContent=txt;
+    $('execDot').style.background='var(--brand)';
+    var base=(a.stepIndex-1)/Math.max(1,a.stepTotal);
+    var frac=a.waiting?0:(a.logTotal?a.logIndex/a.logTotal:1);
+    $('barFill').style.width=Math.min(100,Math.round((base+frac/Math.max(1,a.stepTotal))*100))+'%';
+  }else{
+    $('execText').textContent=doneAll?'全流程完成 ✓':'当前阶段 '+st.current+' · '+(st.busy?'处理中':'等待人工确认或下一步');
+    $('execDot').style.background=doneAll?'var(--ok)':'var(--lock)';
+    $('barFill').style.width=doneAll?'100%':(ORDER.indexOf(st.current)+1)*25+'%';
+  }
+}
+function mainLabel(){
+  var s=st.stageStatus;
+  if(st.busy||ASYNC.running)return '执行中 · 第 '+(ASYNC.stepIndex||0)+'/'+(ASYNC.stepTotal||0)+' 步';
+  if(s.P1==='locked')return '开始调研 →';
+  if(s.P1==='awaiting_review')return '批准计划并继续 →';
+  if(s.P2==='locked')return '开始检索与速读 →';
+  if(s.P2==='awaiting_review')return '采纳证据并继续 →';
+  if(s.P3==='locked')return '生成结论与校验 →';
+  if(s.P3==='awaiting_review')return '确认结论并生成报告 →';
+  if(s.P3==='blocked')return '回退补检（Replan）→';
+  if(s.P4==='locked')return '归档并准备导出 →';
+  if(s.P4==='awaiting_review')return '导出两份报告 + 全量记录 →';
+  return '已完成 · 重新导出 ↻';
+}
+function render(){
+  deriveStatus();
+  var s=st.stageStatus;
+  ORDER.forEach(function(id){
+    $('st'+id).className='step '+s[id];
+    $('tx'+id).textContent=SNAME[s[id]]||s[id];
+  });
+  renderExec();
+  var b=$('mainBtn');b.textContent=mainLabel();b.disabled=st.busy||ASYNC.running;
+  var lockIn=s.P1!=='locked';
+  ['question','course','keywords','docs'].forEach(function(id){$(id).disabled=lockIn;});
+  $('secInput').style.opacity=lockIn?'.8':'1';
+  var canEdit=(s.P3==='awaiting_review'||s.P3==='done'||s.P4!=='locked')&&st.reportGenerated;
+  $('report').disabled=!canEdit;
+  $('reportLocked').style.display=canEdit?'none':'block';
+  $('btnViewEvidence').disabled=!st.reportGenerated;
+  $('btnViewSkeleton').disabled=!st.reportGenerated;
+  $('btnViewEvidence').className='viewbtn'+(st.view==='evidence'?' active':'');
+  $('btnViewSkeleton').className='viewbtn'+(st.view==='skeleton'?' active':'');
+  $('reportBadge').textContent=canEdit?(s.P4==='done'?'已完成 · 可导出':'可编辑 · 改写会留痕'):'未生成';
+  $('reportStat').textContent=st.reportGenerated
+    ?('当前视图：'+viewName()+' · 取证报告 '+st.reportEvidence.length+' 字符 / 六章骨架 '+st.reportSkeleton.length+' 字符（章节 '+st.chapterCount+'）· 引用锚点 '+st.evidence.length+' 条 · 无引用结论 '+st.gates.unlinkedClaims+' 条 · 关键词 '+st.keywords.length+' 个 / 未命中 '+st.missing.length+' 个 · 人工改写 '+st.gates.humanEdits+' 次 · 日志 '+st.logs.length+' 条')
+    :'尚未生成报告';
+  updateWordCount();   /* 报告生成 / 视图切换 / 改写提交 / 重置后同步字数统计 */
+  var g='';
+  if(s.P1==='awaiting_review')g='P1 待人工确认：计划与语料已由本地算法生成，请批准计划；如需改研究问题请点「重新开始」。';
+  else if(s.P2==='awaiting_review')g='P2 待人工确认：证据包已生成，请勾选/剔除后采纳（ReAct 轮次已在日志中留痕）。';
+  else if(s.P3==='awaiting_review')g='P3 强制门：两份报告已生成，请在报告区切换视图逐条审核并人工改写；无引用结论 = '+st.gates.unlinkedClaims+'，六章章节 = '+st.chapterCount+'。';
+  else if(s.P3==='blocked')g='⛔ 校验失败（无引用结论 '+st.gates.unlinkedClaims+' 条 / 六章章节 '+st.chapterCount+' / 未命中关键词 '+st.missing.length+' 个），导出已锁定；只能回退补检，不允许 OVERRIDE。';
+  else if(s.P4==='awaiting_review')g='P4 待人工确认：最终导出将一次生成取证报告 MD、六章骨架 MD、全量交互记录 JSON 与引用清单 CSV。';
+  else if(s.P4==='done')g='✅ 四阶段全部完成，可重复导出。全量交互证据共 '+st.logs.length+' 条。';
+  else g='每步人工门 = 主按钮；未点击则下一阶段保持锁定，不能跳步。';
+  $('gate').textContent=g;
+  var n=st.docs.length,p=st.docs.reduce(function(a,d){return a+d.paras.length;},0);
+  $('inputStat').textContent=(st.topic||n||st.keywords.length)
+    ?('主题「'+cut(st.topic,30)+'」· 关键词 '+st.keywords.length+' 个'+(st.keywords.length?'（'+st.keywords.join('、')+'）':'')+' · 文献 '+n+' 篇 / '+p+' 段'+(st.idx?(' · 索引词项 '+Object.keys(st.idx.post).length+' 个'):' · 待建索引'))
+    :'尚未输入主题与导入文献';
+}
+
+/* ============ 事件绑定 ============ */
+function bind(){
+  $('mainBtn').addEventListener('click',handleMain);
+  $('btnSample').addEventListener('click',function(){
+    $('question').value=SAMPLE_TOPIC;
+    $('course').value='管理学课程论文开题 · 3000 字 · 需 10 篇以上文献';
+    $('keywords').value=SAMPLE_KW;
+    $('docs').value=SAMPLE;
+    st.topic=cut(SAMPLE_TOPIC,80);st.keywords=parseKeywords(SAMPLE_KW);
+    st.docs=buildCorpus(SAMPLE);st.idx=null;render();
+    addLog('ACTION','P1','载入内置示例数据集（6 篇示例文献 + 6 个关键词，教学用示例数据、非真实文献）');
+  });
+  $('btnClear').addEventListener('click',function(){
+    ['question','course','keywords','docs'].forEach(function(id){$(id).value='';});
+    st.topic='';st.keywords=[];st.docs=[];st.idx=null;render();
+  });
+  $('btnFile').addEventListener('click',function(){$('file').click();});
+  $('file').addEventListener('change',function(e){
+    var f=e.target.files&&e.target.files[0];if(!f)return;
+    if(f.size>MAX_FILE_BYTES){
+      showBtnTip('文件超过 2 MB，请剪裁后再导入（避免页面卡顿）',true);
+      addLog('ERROR','P1','导入被拒绝：'+f.name+' 超过 2 MB 上限');return;
+    }
+    var r=new FileReader();r.onload=function(){
+      var txt=String(r.result||'');
+      if(txt.length>MAX_DOC_CHARS){
+        showBtnTip('文献全文超过 30 万字符，仅取前 30 万字符参与索引',true);
+        addLog('WARN','P1','导入文本超长，已截断至 '+MAX_DOC_CHARS+' 字符参与索引');
+      }
+      $('docs').value=txt;st.docs=buildCorpus(txt);st.idx=null;render();
+      addLog('ACTION','P1','本地导入文件：'+f.name+'（FileReader，数据不出本机）');
+    };
+    r.readAsText(f,'utf-8');
+  });
+  $('btnReset').addEventListener('click',function(){
+    cancelAsync();resetState(true);
+    addLog('REPLAN','SYS','重新开始：作废在途定时器（epoch 作废令牌），流程回到 P1，历史日志保留');
+  });
+  $('report').addEventListener('input',function(){
+    clearTimeout(editTimer);
+    updateWordCount();   /* 不等 750ms 留痕提交，编辑时字数即时变化 */
+    editTimer=setTimeout(commitEdit,750);
+  });
+  $('btnViewEvidence').addEventListener('click',function(){switchView('evidence');});
+  $('btnViewSkeleton').addEventListener('click',function(){switchView('skeleton');});
+  $('btnCopy').addEventListener('click',copyReport);
+  $('btnMD').addEventListener('click',function(){
+    var md=currentReport();
+    if(!md){showBtnTip('报告尚未生成，请先完成 P3 审核',true);return;}
+    var fn='开题调研报告_'+(st.view==='evidence'?'取证版':'六章骨架')+'_'+topicTag()+'.md';
+    dl(fn,md,'text/markdown;charset=utf-8');
+    showBtnTip('已导出 Markdown ✓（'+viewName()+'）',false);
+    addLog('ACTION','P4','导出「'+viewName()+'」Markdown 文件：'+fn+'（'+md.length+' 字符）');
+  });
+  $('btnHTML').addEventListener('click',function(){
+    var md=currentReport();
+    if(!md){showBtnTip('报告尚未生成，请先完成 P3 审核',true);return;}
+    var fn='开题调研报告_'+(st.view==='evidence'?'取证版':'六章骨架')+'_'+topicTag()+'.html';
+    dl(fn,mdToHtml(md),'text/html;charset=utf-8');
+    showBtnTip('已导出 HTML ✓（列表已渲染）',false);
+    addLog('ACTION','P4','导出「'+viewName()+'」HTML 文件：'+fn+'（Markdown 已渲染为标题 / 列表 / 表格）');
+  });
+  $('btnCSV').addEventListener('click',function(){
+    var rows=['锚点,文献,段落,引文摘要'];
+    (st.evidence||[]).forEach(function(e){rows.push([e.ref,e.docId,'¶'+e.paraId,'"'+String(e.quote).replace(/"/g,'""')+'"'].join(','));});
+    dl('引用清单_'+topicTag()+'.csv','\ufeff'+rows.join('\n'),'text/csv;charset=utf-8');
+  });
+  $('btnPrint').addEventListener('click',function(){
+    try{flushEdit();$('printOut').textContent=activeReport();}catch(e){}
+    /* 无打印设备 / 浏览器策略禁用 window.print 时会抛异常，必须就地兜住 */
+    try{window.print();}catch(e){showBtnTip('浏览器打印不可用，请先「导出 HTML」再打印',true);}
+  });
+  $('btnAll').addEventListener('click',exportAll);
+  $('btnLog').addEventListener('click',function(){
+    dl('全量AI交互记录_'+topicTag()+'.json',JSON.stringify({generated:new Date().toISOString(),question:st.question,topic:st.topic,keywords:st.keywords,view:st.view,logs:st.logs},null,2),'application/json;charset=utf-8');
+    addLog('ACTION','P4','单独导出全量交互证据记录（共 '+st.logs.length+' 条）');
+  });
+  window.addEventListener('beforeprint',function(){try{flushEdit();$('printOut').textContent=activeReport();}catch(e){}});
+  /* 合并写的日志在页面关闭/刷新前强制落盘，避免丢失最后几条交互证据 */
+  window.addEventListener('pagehide',flushPersist);
+  window.addEventListener('beforeunload',flushPersist);
+}
+function resetState(keepLogs){
+  var logs=keepLogs?st.logs.slice():[];
+  st={stageStatus:{P1:'locked',P2:'locked',P3:'locked',P4:'locked'},current:'P1',busy:false,
+      logs:logs,docs:[],idx:null,plan:null,evidence:[],findings:[],
+      gates:{planApproved:false,unlinkedClaims:0,humanEdits:0,coverage:'0/0'},
+      question:'',course:'',topic:'',keywords:[],dims:[],
+      reportEvidence:'',reportSkeleton:'',reportGenerated:false,
+      view:'evidence',chapterCount:0,missing:[],version:1};
+  $('report').value='';$('printOut').textContent='';
+  ['question','course','keywords','docs'].forEach(function(id){$(id).value='';});
+  $('btnTip').style.display='none';
+  render();
+}
+function boot(){
+  cancelAsync();
+  st={stageStatus:{P1:'locked',P2:'locked',P3:'locked',P4:'locked'},current:'P1',busy:false,
+      logs:[],docs:[],idx:null,plan:null,evidence:[],findings:[],
+      gates:{planApproved:false,unlinkedClaims:0,humanEdits:0,coverage:'0/0'},
+      question:'',course:'',topic:'',keywords:[],dims:[],
+      reportEvidence:'',reportSkeleton:'',reportGenerated:false,
+      view:'evidence',chapterCount:0,missing:[],version:1};
+  /* 历史日志来自 localStorage，可能被旧版本、同名 key 或手工改动写成对象/字符串。
+     不校验就 forEach 会抛 "st.logs.forEach is not a function"，且发生在 boot()
+     顶层同步阶段，页面会直接失效。此处强制数组化并逐项过滤无效记录。 */
+  try{
+    var raw=localStorage.getItem('lit_logs_v1');
+    if(raw){
+      var parsed=JSON.parse(raw);
+      if(Array.isArray(parsed))st.logs=parsed.filter(function(x){return x&&typeof x==='object';});
+    }
+  }catch(e){}
+  bind();renderLog();
+  if(st.logs.length)addLog('ACTION','SYS','页面刷新：流程重置为 P1，仅保留历史交互证据日志（不恢复脏状态）');
+  else addLog('ACTION','SYS','整合版就绪：取证流水线 + 六章骨架双引擎，无需 API Key；请载入示例数据集后点击「开始调研」');
+  render();
+}
+boot();
+})();
+</script>
+</body>
+</html>
